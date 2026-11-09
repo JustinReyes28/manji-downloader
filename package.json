@@ -43,6 +43,7 @@
   },
   "scripts": {
     "test": "node --test test/npm/wrapper.test.js",
-    "pack:check": "npm pack --dry-run"
+    "pack:check": "npm pack --dry-run",
+    "version:check": "uv run python scripts/check_versions.py"
   }
 }

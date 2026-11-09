@@ -51,14 +51,34 @@ If no platform package exists, the launcher prints a clear message and suggests 
 - `pyproject.toml` holds the single source-of-truth version.
 - The Python package, root npm package, and every platform npm package must share the same version.
 - Release tags use `vX.Y.Z`.
-- CI must fail if the versions differ.
+- CI fails if the versions differ:
+
+  ```bash
+  uv run python scripts/check_versions.py
+  ```
 
 ## Building binaries
 
 ```bash
-uv sync
-uv run pyinstaller manji.spec
+uv sync --group build
+uv run pyinstaller manji.spec --distpath dist --workpath build/pyinstaller
 ```
+
+The spec file (`manji.spec`) builds a one-file console binary named `manji`
+(`manji.exe` on Windows). It bundles `manji` submodules plus the runtime
+dependencies (`yaml`, `protego`, `questionary`, `typer`, `rich`).
+
+Generate a platform npm package from a built binary:
+
+```bash
+uv run python scripts/build_platform_package.py \
+  --platform win32-x64 \
+  --binary dist/manji.exe \
+  --output npm/platforms
+```
+
+The script copies the binary and writes a `package.json` with the matching
+`os`/`cpu` metadata and the version from `pyproject.toml`.
 
 - Build on each target OS/architecture; do not cross-compile.
 - Build binaries with the newest Python version supported by PyInstaller and pin it in the release workflow. The Python package itself still supports 3.12+.
@@ -71,9 +91,9 @@ uv run pyinstaller manji.spec
 
 ## Release workflow
 
-Triggered by a `v*` tag:
+`.github/workflows/release.yml` is triggered by a `v*` tag:
 
-1. Run the Python test, lint, and type-check suite.
+1. Run the Python test, lint, type-check, and version-sync checks.
 2. Build PyInstaller binaries for the platform matrix.
 3. Build the Python wheel and sdist; publish to PyPI using trusted publishing.
 4. Generate `npm/platforms/<platform>/package.json` for each artifact and copy the binary next to it.

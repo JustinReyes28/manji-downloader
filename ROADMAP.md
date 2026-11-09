@@ -6,17 +6,23 @@ This document outlines the planned progression of **Manji Downloader** from its 
 
 The objective of the MVP is to establish the universal **Source Adapter Registry**, the interactive `manji` CLI wizard, and the core downloading/link-export pipeline.
 
-### Deliverables & Goals
+**Status:** Phases 1–5 of the implementation plan are complete. The package, contracts, configuration, selection engine, compliance HTTP layer, downloader, link exporter, organizer, CLI commands, wizard, and packaging scaffolding all exist and are covered by tests against synthetic mock adapters. The MVP is **not** shippable to end users yet: no production site adapter exists, which is the remaining blocker below.
 
-- **Universal Adapter Registry & URL Router:** Automatically detect which site adapter matches a pasted anime series URL and normalize catalog responses into a unified `SeriesCatalog` format.
-- **Interactive CLI Wizard (**`manji`) & Flags: Prompt the user to paste an anime series URL and select ranges for Main Episodes, OVAs, Movies, and Specials (e.g., `1-12` or `0` for none).
-- **Variant Sorting & Quality Selection:** Support filtering episode variants by resolution (`1080p`, `720p`, `480p`) and sorting by `Biggest Size`, `Latest`, or `Most Downloaded`.
-    - Export resolved URLs to a newline-separated `links.txt` file for bulk download managers (IDM, `wget`, `aria2`, `yt-dlp`).
-    - Provide built-in chunked streaming download with atomic file writes (`.tmp` to destination).
-- **Compliant HTTP Engine & Rate Limiter:** Implement per-domain `robots.txt` enforcement, inter-episode lookup delays, and `Retry-After` backoff.
-- **Initial Reference Site Adapter:** Implement the first source adapter for an authorized API/site to validate the end-to-end universal pipeline.
-- **Core Test Suite:** Unit tests for URL routing, episode range parsing, variant sorting, and mock server integration tests.
-- **Distribution Channels:** Publish the Python package to PyPI and the npm launcher (`npx manji-downloader`) backed by prebuilt Windows, macOS, and Linux binaries.
+### Completed
+
+- Universal Adapter Registry & URL Router with normalized `SeriesCatalog` output.
+- Interactive CLI wizard plus `info`, `retrieve`, and `export-links` commands.
+- Variant filtering by quality/container and `biggest_size` / `latest` / `most_downloaded` sorting.
+- `links.txt` export plus `links-manifest.json`, filename templates, and metadata sidecars.
+- Compliant HTTP engine: per-domain `robots.txt`, rate limiting, `Retry-After` backoff, and challenge halting.
+- Streaming downloader with atomic writes, Range resume, and conflict policies.
+- Unit, integration, and CLI end-to-end tests using only loopback mock servers.
+- PyPI/npm packaging scaffolding, version-sync checks, and a release workflow.
+
+### Remaining
+
+- **Initial Reference Site Adapter:** the first real adapter is blocked until an authorized source and its approved access method are documented. Until then only synthetic test adapters exist.
+- **Distribution go-live:** publishing to PyPI and npm has not been performed.
 
 <!-- TODO: document approved access method for this source. -->
 

@@ -10,9 +10,9 @@ Pipeline: pasted URL → Adapter Registry → site adapter → `SeriesCatalog` �
 
 ## Current state
 
-- Phases 1–4 are implemented: package, contracts, registry, CLI skeleton, config/selection, compliance HTTP with robots/rate limiting/challenge halting/redaction, mock adapters, streaming downloader with atomic writes and Range resume, `links.txt`/manifest export, filename templates, and metadata sidecars. Phase 5 (CLI integration and release) is in progress.
+- Phases 1–5 are implemented: package, contracts, registry, CLI, config/selection, compliance HTTP, mock adapters, downloader, link export, organizer, wizard, end-to-end tests, and packaging scaffolding. No production site adapter exists.
 - **Runtime:** Python 3.12+ with `uv`. Package layout: `src/manji/`, console script `manji`. Python 3.14 and `uv` are installed locally.
-- `pyproject.toml` + `uv.lock` pin runtime and dev dependencies; `uv sync` sets everything up.
+- `pyproject.toml` + `uv.lock` pin runtime and dev dependencies; `uv sync` sets everything up. `uv sync --group build` adds PyInstaller.
 
 Verified commands:
 
@@ -24,7 +24,10 @@ uv run pytest
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy src
+uv run python scripts/check_versions.py
 uv build
+npm test
+npm pack --dry-run
 ```
 - **Distribution:** PyPI (`manji-downloader`) and npm (`manji-downloader` plus per-platform packages). The npm package is a thin launcher for prebuilt PyInstaller binaries; see `PACKAGING.md`.
 - Specs are Markdown files at the repo root (`README.md`, `ARCHITECTURE.md`, `CONFIGURATION.md`, `COMPLIANCE.md`, `TESTING.md`, `CONTRIBUTING.md`, `ROADMAP.md`). They are the source of truth; do not contradict them, and update them when behavior changes.

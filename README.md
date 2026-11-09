@@ -2,7 +2,7 @@
 
 **Manji Downloader** is a compliance-first, universal command-line (CLI) anime series and episodic media retrieval assistant. Built around a pluggable multi-site adapter architecture, it allows you to paste an anime series URL from any supported authorized source, interactively select episodes, OVAs, movies, or specials, filter by video quality and sorting criteria, and either download files locally or export batch links.
 
-> **Project status:** Phase 1 of 5 complete — installable Python package, domain contracts, adapter registry, and CLI skeleton. Phases 2–5 are in progress; distribution will be available on PyPI and npm (`npx manji-downloader`).
+> **Project status:** Phases 1–5 complete — a working mock-mode core with the full CLI, compliant HTTP layer, downloader, link export, and packaging scaffolding. No production site adapter exists yet; the first adapter remains blocked on an authorized source with a documented access method.
 
 ## 1. Overview
 
@@ -11,7 +11,7 @@ Manji Downloader provides a unified, interactive CLI experience across multiple 
 - **Primary Goal:** Provide a single, universal CLI interface (`manji`) to discover, filter, and organize anime series and episodic media across a growing list of compatible, authorized sites.
 - **Interactive Experience:** Inspired by streamlined batch-link workflows (such as [Tokyo-Downloader](https://github.com/MaJoRX0/Tokyo-Downloader)), allowing users to paste a series link and interactively choose episode ranges, media categories, video resolutions, and sorting preferences.
 - **Philosophy:** Compliance-first architecture with strict adherence to access controls, `robots.txt`, terms of service, and polite rate limits across every configured site adapter.
-- **Current Status:** Python implementation; Phase 1 of 5 complete; npm packaging planned.
+- **Current Status:** Python implementation; Phases 1–5 complete; mock-mode core working end to end. Real adapters pending an authorized source.
 
 ## 2. Authorized-Use and Legal Notice
 
@@ -96,7 +96,31 @@ uv run pytest
 uv run ruff check .
 uv run ruff format --check .
 uv run mypy src
+uv run python scripts/check_versions.py
+npm test
+npm pack --dry-run
 ```
+
+### Command Reference
+
+```text
+manji                                  # Interactive wizard (requires a terminal)
+manji [--config path]
+manji adapters list
+manji info <series-url> [--episodes 1-12] [--ovas 0] [--movies 0] [--specials 0] \
+  [--quality 1080p] [--sort biggest-size] [--verbose]
+manji retrieve <series-url> --episodes 1-12 --quality 1080p --sort biggest-size \
+  [--output-dir ./Anime]
+manji export-links <series-url> --episodes 1-24 --quality 1080p --sort latest \
+  [--export-file links.txt] [--manifest-file links-manifest.json]
+manji version
+```
+
+`--sort` accepts `biggest-size`, `latest`, or `most-downloaded`. When stdin is not a
+terminal, `manji` with no command exits with a usage error instead of prompting.
+
+Exit codes: `0` success, `1` generic, `2` usage/config, `3` unsupported site,
+`4` access/challenge, `5` network/rate limit, `6` partial failure.
 
 The npm package ships prebuilt Windows, macOS, and Linux binaries. See [PACKAGING.md](PACKAGING.md) for the build and release process.
 

@@ -28,7 +28,7 @@ This directory replaces the single implementation plan with five incremental pha
 | [2. Configuration & Selection](phase-2-config-and-selection.md) | YAML/TOML config, validation, ranges, quality and sorting | Phase 1 | Complete |
 | [3. Compliance HTTP & Mock Adapters](phase-3-compliance-http.md) | Rate limiter, robots.txt, Retry-After, challenge halting, redaction, fixtures | Phase 2 | Complete |
 | [4. Retrieval Pipeline](phase-4-retrieval-pipeline.md) | Downloader, resume, `links.txt`, manifests, filename templates, sidecars | Phase 3 | Complete |
-| [5. CLI Integration & Release](phase-5-integration-and-release.md) | Full commands, wizard, end-to-end tests, npm/PyPI packaging, docs, PR | Phase 4 | In progress |
+| [5. CLI Integration & Release](phase-5-integration-and-release.md) | Full commands, wizard, end-to-end tests, npm/PyPI packaging, docs, PR | Phase 4 | Complete |
 
 ## Current blockers
 
@@ -38,3 +38,8 @@ This directory replaces the single implementation plan with five incremental pha
 ## Working branch
 
 Implementation is on `feat/python-mvp-foundation`. One branch with one commit per phase is fine; open the pull request after Phase 5, or earlier if you want feedback on a phase.
+
+## Post-Phase 5 blockers
+
+- **Publishing has not happened.** PyPI and npm releases, signing, and notarization are release-time actions that require credentials and go-ahead.
+- **The pull request is not open.** The branch is committed locally; pushing and opening the PR needs network access and maintainer approval.

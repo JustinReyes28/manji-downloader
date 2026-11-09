@@ -47,19 +47,27 @@ def mock_json_site() -> Iterator[MockSite]:
         catalog = json.loads(load_fixture("mock_json", "catalog.json"))
         site.json("/series/example", catalog)
         variants = json.loads(load_fixture("mock_json", "variants.json"))
-        for episode in range(1, 25):
-            path = f"/series/example/episodes/{episode}"
-            payload = {
-                "item_id": f"ep-{episode:02d}",
-                "variants": [
-                    {
-                        **variant,
-                        "id": variant["id"].replace("ep-01", f"ep-{episode:02d}"),
-                    }
-                    for variant in variants["variants"]
-                ],
-            }
-            site.json(path, payload)
+        for category, prefix in (
+            ("episodes", "ep"),
+            ("ovas", "ova"),
+            ("movies", "movie"),
+            ("specials", "special"),
+        ):
+            for entry in catalog[category]:
+                number = entry["number"]
+                label = f"{prefix}-{number:02d}"
+                payload = {
+                    "item_id": entry["id"],
+                    "variants": [
+                        {
+                            **variant,
+                            "id": variant["id"].replace("ep-01", label),
+                            "url": variant["url"].replace("ep-01", label),
+                        }
+                        for variant in variants["variants"]
+                    ],
+                }
+                site.json(f"/series/example/{category}/{number}", payload)
         yield site
 
 
@@ -94,6 +102,7 @@ def build_client(
     delay: float = 0.0,
     max_concurrency: int = 2,
     retry_after_cap: float = 30.0,
+    routes: dict[str, str] | None = None,
 ) -> CompliantClient:
     settings = ClientSettings(
         user_agent=TEST_USER_AGENT,
@@ -104,7 +113,7 @@ def build_client(
         max_concurrency_per_domain=max_concurrency,
         default_request_delay_seconds=delay,
     )
-    transport = HostRewriteTransport(base_url)
+    transport = HostRewriteTransport(base_url, routes=routes)
     return CompliantClient(settings, transport=transport, clock=clock or FakeClock())
 
 

@@ -55,29 +55,34 @@ class LoopbackOnlyTransport(httpx.BaseTransport):
 
 
 class HostRewriteTransport(httpx.BaseTransport):
-    """Map known synthetic ``*.test`` hosts onto a local mock server."""
+    """Map synthetic ``*.test`` hosts onto local mock servers."""
 
     def __init__(
         self,
-        base_url: str,
+        base_url: str | None = None,
         inner: httpx.BaseTransport | None = None,
         *,
         hosts: frozenset[str] | set[str] | None = None,
+        routes: dict[str, str] | None = None,
     ) -> None:
-        self._base_url = httpx.URL(base_url)
+        self._default = httpx.URL(base_url) if base_url else None
         self._inner = inner or shared_transport()
         self._hosts = frozenset(
             host.lower() for host in (hosts or {"mock-json.test", "mock-html.test"})
         )
+        self._routes = {host.lower(): httpx.URL(url) for host, url in (routes or {}).items()}
 
     def rewrite(self, url: httpx.URL) -> httpx.URL:
         host = (url.host or "").lower()
-        if host not in self._hosts:
-            return url
+        target = self._routes.get(host)
+        if target is None:
+            if host not in self._hosts or self._default is None:
+                return url
+            target = self._default
         return url.copy_with(
-            scheme=self._base_url.scheme,
-            host=self._base_url.host,
-            port=self._base_url.port,
+            scheme=target.scheme,
+            host=target.host,
+            port=target.port,
             raw_path=url.raw_path,
         )
 
@@ -86,7 +91,7 @@ class HostRewriteTransport(httpx.BaseTransport):
         rewritten = self.rewrite(original)
         request.url = rewritten
         if rewritten.host is not None and rewritten.host != original.host:
-            request.headers["host"] = self._base_url.netloc.decode("ascii")
+            request.headers["host"] = rewritten.netloc.decode("ascii")
         response = self._inner.handle_request(request)
         response.request = request
         return response
