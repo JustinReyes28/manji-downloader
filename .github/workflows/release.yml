@@ -142,6 +142,39 @@ jobs:
             }
             console.log("launcher pins match " + expected);
           '
+      - name: Preflight — confirm OIDC trust exists for all six packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Exchanging the OIDC id_token for a package publish token is a
+          # read-only probe: it proves trusted publishing is configured for that
+          # package without publishing anything. Doing this for all six first
+          # prevents a partial release, which cannot be undone on npm.
+          id_token="$(curl -sS \
+            -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=npm:registry.npmjs.org" \
+            | node -e 'let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{const v=JSON.parse(d).value;if(!v){console.error("no id_token");process.exit(1)}process.stdout.write(v)})')"
+
+          packages="manji-downloader manji-downloader-win32-x64 manji-downloader-darwin-x64 manji-downloader-darwin-arm64 manji-downloader-linux-x64 manji-downloader-linux-arm64"
+          failed=""
+          for pkg in $packages; do
+            code="$(curl -sS -o /tmp/exchange.json -w '%{http_code}' -X POST \
+              -H "Authorization: Bearer ${id_token}" \
+              "https://registry.npmjs.org/-/npm/v1/oidc/token/exchange/package/${pkg}")"
+            if [ "$code" = "201" ] || [ "$code" = "200" ]; then
+              echo "ok   ${pkg} (trusted publisher configured)"
+            else
+              echo "::error::${pkg} -> HTTP ${code}: $(cat /tmp/exchange.json)"
+              failed="${failed} ${pkg}"
+            fi
+          done
+          if [ -n "$failed" ]; then
+            echo "::error::Missing npm trusted publisher for:${failed}"
+            echo "Configure Settings -> Trusted Publisher -> GitHub Actions on each package"
+            echo "(owner JustinReyes28, repo manji-downloader, workflow release.yml)."
+            exit 1
+          fi
+          echo "All six packages are trusted; proceeding to publish."
       - name: Publish platform packages
         run: |
           for platform in win32-x64 darwin-x64 darwin-arm64 linux-x64 linux-arm64; do
