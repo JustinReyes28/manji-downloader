@@ -1,6 +1,6 @@
 # Phase 1 — Foundation & Contracts
 
-**Status:** Not started
+**Status:** Complete (commit `322bc9f`)
 **Depends on:** none
 **Unlocks:** Phase 2
 **Commit checkpoint:** `phase 1: foundation and contracts`
@@ -22,18 +22,18 @@ No global packages need to be installed; `uv sync` creates the virtual environme
 
 ## Deliverables
 
-- [ ] `pyproject.toml` with a `hatchling` build backend and `manji` console script.
-- [ ] `uv.lock` and `.python-version`.
-- [ ] `src/manji/` package with `__init__.py`, `__main__.py`, and version metadata.
-- [ ] `src/manji/domain/catalog.py` domain models.
-- [ ] `src/manji/adapters/base.py` and `registry.py` adapter protocol and registry.
-- [ ] `src/manji/errors.py` exception hierarchy.
-- [ ] `src/manji/cli/` Typer app with `version` and `adapters list`.
-- [ ] `tests/` skeleton with pytest configuration.
-- [ ] `ruff`, `mypy`, `pytest`, and coverage configuration.
-- [ ] `Makefile` targets for sync/test/lint/format/typecheck/build.
-- [ ] `.github/workflows/ci.yml`.
-- [ ] `AGENTS.md` and README updated with Python commands.
+- [x] `pyproject.toml` with a `hatchling` build backend and `manji` console script.
+- [x] `uv.lock` and `.python-version`.
+- [x] `src/manji/` package with `__init__.py`, `__main__.py`, and version metadata.
+- [x] `src/manji/domain/catalog.py` domain models.
+- [x] `src/manji/adapters/base.py` and `registry.py` adapter protocol and registry.
+- [x] `src/manji/errors.py` exception hierarchy.
+- [x] `src/manji/cli/` Typer app with `version` and `adapters list`.
+- [x] `tests/` skeleton with pytest configuration.
+- [x] `ruff`, `mypy`, `pytest`, and coverage configuration.
+- [x] `Makefile` targets for sync/test/lint/format/typecheck/build.
+- [x] `.github/workflows/ci.yml`.
+- [x] `AGENTS.md` and README updated with Python commands.
 
 ## Detailed scope
 

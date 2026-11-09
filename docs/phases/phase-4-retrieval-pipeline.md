@@ -1,6 +1,6 @@
 # Phase 4 — Retrieval Pipeline
 
-**Status:** Not started
+**Status:** Complete (commit `4675c08`)
 **Depends on:** Phase 3
 **Unlocks:** Phase 5
 **Commit checkpoint:** `phase 4: retrieval pipeline`
@@ -11,13 +11,13 @@ Implement the final output paths: compliant streaming downloads, `links.txt` exp
 
 ## Deliverables
 
-- [ ] `src/manji/download/downloader.py` streaming downloader with atomic writes and Range resume.
-- [ ] Conflict policies: `overwrite`, `skip`, `rename`.
-- [ ] `src/manji/export/links.py` for `links.txt` and `links-manifest.json`.
-- [ ] `src/manji/organize/filenames.py` templates, sanitization, and safe path joins.
-- [ ] `src/manji/organize/sidecars.py` metadata writers.
-- [ ] `src/manji/fs.py` atomic text/binary write helpers.
-- [ ] Unit and integration tests using the Phase 3 mock servers.
+- [x] `src/manji/download/downloader.py` streaming downloader with atomic writes and Range resume.
+- [x] Conflict policies: `overwrite`, `skip`, `rename`.
+- [x] `src/manji/export/links.py` for `links.txt` and `links-manifest.json`.
+- [x] `src/manji/organize/filenames.py` templates, sanitization, and safe path joins.
+- [x] `src/manji/organize/sidecars.py` metadata writers.
+- [x] `src/manji/fs.py` atomic text/binary write helpers.
+- [x] Unit and integration tests using the Phase 3 mock servers.
 
 ## Downloader
 

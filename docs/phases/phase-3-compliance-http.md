@@ -1,6 +1,6 @@
 # Phase 3 — Compliance HTTP & Mock Adapters
 
-**Status:** Not started
+**Status:** Complete (commit `fb0c926`)
 **Depends on:** Phase 2
 **Unlocks:** Phase 4
 **Commit checkpoint:** `phase 3: compliance http and mock adapters`
@@ -11,15 +11,15 @@ Build the shared network layer that enforces robots.txt, per-domain rate limits,
 
 ## Deliverables
 
-- [ ] `src/manji/log.py` with logging setup and a redaction filter.
-- [ ] `src/manji/net/client.py` shared `httpx` client.
-- [ ] `src/manji/net/limiter.py` per-domain limiter with an injectable clock.
-- [ ] `src/manji/net/robots.py` using `protego`.
-- [ ] `src/manji/net/challenge.py` and `redaction.py`.
-- [ ] `tests/adapters/mock_json.py` and `mock_html.py`.
-- [ ] `tests/helpers/` loopback transport and mock-site harness.
-- [ ] Fixtures under `tests/fixtures/adapters/<site_id>/`.
-- [ ] Unit and integration tests for every compliance branch.
+- [x] `src/manji/log.py` with logging setup and a redaction filter.
+- [x] `src/manji/net/client.py` shared `httpx` client.
+- [x] `src/manji/net/limiter.py` per-domain limiter with an injectable clock.
+- [x] `src/manji/net/robots.py` using `protego`.
+- [x] `src/manji/net/challenge.py` and `redaction.py`.
+- [x] `tests/adapters/mock_json.py` and `mock_html.py`.
+- [x] `tests/helpers/` loopback transport and mock-site harness.
+- [x] Fixtures under `tests/fixtures/adapters/<site_id>/`.
+- [x] Unit and integration tests for every compliance branch.
 
 ## HTTP client requirements
 

@@ -1,6 +1,6 @@
 # Phase 2 — Configuration & Selection
 
-**Status:** Not started
+**Status:** Complete (commit `8f68913`)
 **Depends on:** Phase 1
 **Unlocks:** Phase 3
 **Commit checkpoint:** `phase 2: configuration and selection`
@@ -11,12 +11,12 @@ Load and validate the documented YAML/TOML configuration with Pydantic, then imp
 
 ## Deliverables
 
-- [ ] `src/manji/config/` models, loader, path helpers, and env expansion.
-- [ ] `manji-config.example.yaml` and `manji-config.example.toml`.
-- [ ] `src/manji/selection/ranges.py`.
-- [ ] `src/manji/selection/quality.py` and `selector.py`.
-- [ ] Unit tests for both feature areas.
-- [ ] README/CONFIGURATION updated if any behavior is clarified.
+- [x] `src/manji/config/` models, loader, path helpers, and env expansion.
+- [x] `manji-config.example.yaml` and `manji-config.example.toml`.
+- [x] `src/manji/selection/ranges.py`.
+- [x] `src/manji/selection/quality.py` and `selector.py`.
+- [x] Unit tests for both feature areas.
+- [x] README/CONFIGURATION updated if any behavior is clarified.
 
 ## Configuration
 

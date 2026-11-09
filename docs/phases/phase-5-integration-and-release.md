@@ -1,6 +1,6 @@
 # Phase 5 — CLI Integration, Packaging & Release
 
-**Status:** Not started
+**Status:** Complete (commit `bd3524b`); the push/PR and publishing steps are release-time actions and remain open
 **Depends on:** Phase 4
 **Unlocks:** first real adapter work (separate milestone)
 **Commit checkpoint:** `phase 5: cli integration, packaging, and end-to-end tests`
@@ -11,20 +11,22 @@ Wire the core packages into the documented CLI, prove the full flow against mock
 
 ## Deliverables
 
-- [ ] `src/manji/app.py` dependency wiring and service construction.
-- [ ] CLI commands: `info`, `retrieve`, `export-links`.
-- [ ] Interactive wizard for `manji` with no arguments.
-- [ ] Non-interactive flags and clear non-TTY behavior.
-- [ ] End-to-end integration tests.
-- [ ] Root `package.json` and `bin/manji.js` npm launcher.
-- [ ] npm launcher tests.
-- [ ] PyInstaller spec and platform build script.
-- [ ] Generated platform npm packages with `os`/`cpu` metadata.
-- [ ] Release workflow for PyPI and npm.
-- [ ] Version-sync check across Python and npm packages.
-- [ ] `PACKAGING.md` documentation.
-- [ ] README, AGENTS.md, and ROADMAP status updates.
-- [ ] Green CI and a pull request.
+- [x] `src/manji/app.py` dependency wiring and service construction.
+- [x] CLI commands: `info`, `retrieve`, `export-links`.
+- [x] Interactive wizard for `manji` with no arguments.
+- [x] Non-interactive flags and clear non-TTY behavior.
+- [x] End-to-end integration tests.
+- [x] Root `package.json` and `bin/manji.js` npm launcher.
+- [x] npm launcher tests.
+- [x] PyInstaller spec and platform build script.
+- [x] Generated platform npm packages with `os`/`cpu` metadata.
+- [x] Release workflow for PyPI and npm.
+- [x] Version-sync check across Python and npm packages.
+- [x] `PACKAGING.md` documentation.
+- [x] README, AGENTS.md, and ROADMAP status updates.
+- [ ] Push, open the pull request, and publish. These are release-time actions that need
+  network access, registry credentials, and maintainer go-ahead; everything else in this
+  phase is complete and verified locally.
 
 ## CLI commands
 
