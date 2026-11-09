@@ -10,7 +10,7 @@ Pipeline: pasted URL → Adapter Registry → site adapter → `SeriesCatalog` �
 
 ## Current state
 
-- Phases 1–2 are implemented: installable Python package, domain contracts, adapter registry, CLI skeleton, configuration loader, range parser, and variant selection engine. Phase 3 (compliance HTTP and mock adapters) is in progress.
+- Phases 1–3 are implemented: installable Python package, domain contracts, adapter registry, CLI skeleton, configuration loader, range parser, variant selection engine, compliance HTTP client, per-domain limiter, robots.txt enforcement, challenge halting, redaction, and synthetic mock adapters. Phase 4 (retrieval pipeline) is next.
 - **Runtime:** Python 3.12+ with `uv`. Package layout: `src/manji/`, console script `manji`. Python 3.14 and `uv` are installed locally.
 - `pyproject.toml` + `uv.lock` pin runtime and dev dependencies; `uv sync` sets everything up.
 

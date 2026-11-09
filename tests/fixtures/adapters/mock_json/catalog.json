@@ -1,0 +1,45 @@
+{
+  "series": {
+    "title": "Example Mock Series",
+    "site_id": "mock_json",
+    "source_url": "https://mock-json.test/series/example-mock-series"
+  },
+  "episodes": [
+    {"id": "ep-01", "number": 1, "title": "Episode 01", "url": "https://mock-json.test/series/example/episodes/1"},
+    {"id": "ep-02", "number": 2, "title": "Episode 02", "url": "https://mock-json.test/series/example/episodes/2"},
+    {"id": "ep-03", "number": 3, "title": "Episode 03", "url": "https://mock-json.test/series/example/episodes/3"},
+    {"id": "ep-04", "number": 4, "title": "Episode 04", "url": "https://mock-json.test/series/example/episodes/4"},
+    {"id": "ep-05", "number": 5, "title": "Episode 05", "url": "https://mock-json.test/series/example/episodes/5"},
+    {"id": "ep-06", "number": 6, "title": "Episode 06", "url": "https://mock-json.test/series/example/episodes/6"},
+    {"id": "ep-07", "number": 7, "title": "Episode 07", "url": "https://mock-json.test/series/example/episodes/7"},
+    {"id": "ep-08", "number": 8, "title": "Episode 08", "url": "https://mock-json.test/series/example/episodes/8"},
+    {"id": "ep-09", "number": 9, "title": "Episode 09", "url": "https://mock-json.test/series/example/episodes/9"},
+    {"id": "ep-10", "number": 10, "title": "Episode 10", "url": "https://mock-json.test/series/example/episodes/10"},
+    {"id": "ep-11", "number": 11, "title": "Episode 11", "url": "https://mock-json.test/series/example/episodes/11"},
+    {"id": "ep-12", "number": 12, "title": "Episode 12", "url": "https://mock-json.test/series/example/episodes/12"},
+    {"id": "ep-13", "number": 13, "title": "Episode 13", "url": "https://mock-json.test/series/example/episodes/13"},
+    {"id": "ep-14", "number": 14, "title": "Episode 14", "url": "https://mock-json.test/series/example/episodes/14"},
+    {"id": "ep-15", "number": 15, "title": "Episode 15", "url": "https://mock-json.test/series/example/episodes/15"},
+    {"id": "ep-16", "number": 16, "title": "Episode 16", "url": "https://mock-json.test/series/example/episodes/16"},
+    {"id": "ep-17", "number": 17, "title": "Episode 17", "url": "https://mock-json.test/series/example/episodes/17"},
+    {"id": "ep-18", "number": 18, "title": "Episode 18", "url": "https://mock-json.test/series/example/episodes/18"},
+    {"id": "ep-19", "number": 19, "title": "Episode 19", "url": "https://mock-json.test/series/example/episodes/19"},
+    {"id": "ep-20", "number": 20, "title": "Episode 20", "url": "https://mock-json.test/series/example/episodes/20"},
+    {"id": "ep-21", "number": 21, "title": "Episode 21", "url": "https://mock-json.test/series/example/episodes/21"},
+    {"id": "ep-22", "number": 22, "title": "Episode 22", "url": "https://mock-json.test/series/example/episodes/22"},
+    {"id": "ep-23", "number": 23, "title": "Episode 23", "url": "https://mock-json.test/series/example/episodes/23"},
+    {"id": "ep-24", "number": 24, "title": "Episode 24", "url": "https://mock-json.test/series/example/episodes/24"}
+  ],
+  "ovas": [
+    {"id": "ova-01", "number": 1, "title": "OVA 01", "url": "https://mock-json.test/series/example/ovas/1"},
+    {"id": "ova-02", "number": 2, "title": "OVA 02", "url": "https://mock-json.test/series/example/ovas/2"}
+  ],
+  "movies": [
+    {"id": "movie-01", "number": 1, "title": "Movie 01", "url": "https://mock-json.test/series/example/movies/1"}
+  ],
+  "specials": [
+    {"id": "special-01", "number": 1, "title": "Special 01", "url": "https://mock-json.test/series/example/specials/1"},
+    {"id": "special-02", "number": 2, "title": "Special 02", "url": "https://mock-json.test/series/example/specials/2"},
+    {"id": "special-03", "number": 3, "title": "Special 03", "url": "https://mock-json.test/series/example/specials/3"}
+  ]
+}

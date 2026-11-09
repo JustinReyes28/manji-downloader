@@ -1,9 +1,14 @@
-from __future__ import annotations
-
-from datetime import UTC, datetime
+"""Shared test helpers: loopback transports, mock sites, and stub adapters."""
 
 from manji.adapters import AuthMode, SiteMetadata
 from manji.domain import MediaItem, MediaVariant, SeriesCatalog
+from tests.helpers.mock_site import MockSite, running_site
+from tests.helpers.transport import (
+    HostRewriteTransport,
+    LoopbackOnlyTransport,
+    is_loopback_host,
+    synthetic_host,
+)
 
 
 def make_metadata(
@@ -16,7 +21,7 @@ def make_metadata(
         domains=domains,
         default_min_request_delay_seconds=1.5,
         auth_mode=AuthMode.NONE,
-        url_patterns=(r"^https://mock-json\.test/series/",),
+        url_patterns=(rf"^https://{domains[0]}/series/",),
     )
 
 
@@ -43,14 +48,16 @@ class StubAdapter:
         )
 
     def resolve_episode_variants(self, item: MediaItem) -> tuple[MediaVariant, ...]:
-        return (
-            MediaVariant(
-                id=f"{item.id}-1080",
-                quality="1080p",
-                container="mkv",
-                size_bytes=100,
-                uploaded_at=datetime(2024, 1, 1, tzinfo=UTC),
-                download_count=1,
-                url=f"{item.url}/1080",
-            ),
-        )
+        return ()
+
+
+__all__ = [
+    "HostRewriteTransport",
+    "LoopbackOnlyTransport",
+    "MockSite",
+    "StubAdapter",
+    "is_loopback_host",
+    "make_metadata",
+    "running_site",
+    "synthetic_host",
+]
