@@ -33,9 +33,11 @@ jobs:
         include:
           - os: windows-latest
             platform: win32-x64
-          - os: macos-13
+          # macos-13 was retired by GitHub; macos-14 retired on 2026-11-02.
+          # macos-15-intel is the standard x64 runner, macos-15 the arm64 one.
+          - os: macos-15-intel
             platform: darwin-x64
-          - os: macos-14
+          - os: macos-15
             platform: darwin-arm64
           - os: ubuntu-latest
             platform: linux-x64
