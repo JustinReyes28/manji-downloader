@@ -1,0 +1,19 @@
+# Keep Docker build contexts small: never send local virtualenvs,
+# build output, caches, or installed node modules to the daemon.
+.venv/
+venv/
+node_modules/
+.pytest-tmp/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+__pycache__/
+*.py[cod]
+dist/
+build/
+out/
+coverage/
+htmlcov/
+npm/platforms/*/
+*.tgz
+.git/
