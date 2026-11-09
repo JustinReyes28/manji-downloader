@@ -15,6 +15,33 @@ ResponseSpec = tuple[int, dict[str, str], bytes]
 Handler = Callable[[str, str], ResponseSpec]
 
 
+def _apply_range(
+    range_header: str, payload: bytes, headers: dict[str, str], *, honour: bool = True
+) -> ResponseSpec:
+    """Honour a simple ``bytes=start-`` Range request, mirroring real servers."""
+
+    spec = range_header.removeprefix("bytes=").split(",", 1)[0].strip()
+    if not honour:
+        return 200, headers, payload
+    start_text, _, end_text = spec.partition("-")
+    try:
+        start = int(start_text) if start_text else 0
+        end = int(end_text) if end_text else len(payload) - 1
+    except ValueError:
+        return 200, headers, payload
+    total = len(payload)
+    if start >= total:
+        headers = dict(headers)
+        headers["Content-Range"] = f"bytes */{total}"
+        return 416, headers, b""
+    end = min(end, total - 1)
+    body = payload[start : end + 1]
+    headers = dict(headers)
+    headers["Content-Range"] = f"bytes {start}-{end}/{total}"
+    headers["Accept-Ranges"] = "bytes"
+    return 206, headers, body
+
+
 @dataclass
 class Route:
     handler: Handler
@@ -95,12 +122,21 @@ class MockSite:
                     return
                 route.hits += 1
                 status, headers, payload = route.handler(method, self.path)
+                headers = {
+                    key: value
+                    for key, value in headers.items()
+                    if key.lower() not in {"content-length", "content-range"}
+                }
+                range_header = self.headers.get("Range", "")
+                if status == 200 and range_header.startswith("bytes=") and payload:
+                    status, headers, payload = _apply_range(range_header, payload, headers)
                 self.send_response(status)
                 for key, value in headers.items():
                     self.send_header(key, value)
                 self.send_header("Content-Length", str(len(payload)))
                 self.end_headers()
-                self.wfile.write(payload)
+                if method != "HEAD":
+                    self.wfile.write(payload)
 
             def do_GET(self) -> None:
                 self._serve("GET")

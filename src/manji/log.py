@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from manji.config.models import LoggingConfig, LogLevel
-from manji.net.redaction import RedactionFilter, Sanitizer
+
+if TYPE_CHECKING:
+    from manji.net.redaction import Sanitizer
 
 LOGGER_NAME = "manji"
 
@@ -25,6 +28,9 @@ def configure_logging(
     force: bool = False,
 ) -> logging.Logger:
     """Configure the ``manji`` logger once and return it."""
+
+    # Imported lazily: ``manji.net`` imports ``get_logger`` from this module.
+    from manji.net.redaction import RedactionFilter
 
     settings = config or LoggingConfig()
     logger = logging.getLogger(LOGGER_NAME)

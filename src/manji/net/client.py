@@ -314,8 +314,9 @@ class CompliantClient:
         *,
         headers: Mapping[str, str] | None = None,
         method: str = "GET",
+        allow_statuses: frozenset[int] = frozenset({200, 206, 416}),
     ) -> Iterator[httpx.Response]:
-        """Stream a response through the same limiter and robots checks."""
+        """Stream a response through the same limiter, robots, and halting rules."""
 
         domain = domain_of(url)
         self._check_domain(domain, url)
@@ -324,11 +325,48 @@ class CompliantClient:
             request = self._http.build_request(method, url, headers=dict(headers or {}))
             response = self._http.send(request, stream=True)
             try:
+                status = response.status_code
+                if status not in allow_statuses:
+                    body = response.read().decode("utf-8", errors="replace")
+                    self._raise_for_stream_status(
+                        status, response.headers, body, url=url, domain=domain
+                    )
                 yield response
             finally:
                 response.close()
         finally:
             self._limiter.release(domain)
+
+    def _raise_for_stream_status(
+        self,
+        status: int,
+        headers: Mapping[str, str],
+        body: str,
+        *,
+        url: str,
+        domain: str,
+    ) -> None:
+        redacted = self._sanitizer.redact_url(url)
+        if status in (429, 503) and not is_challenge(status, headers, body):
+            retry_after = parse_retry_after(headers.get("retry-after"))
+            raise RateLimitedError(
+                f"{domain} rate limited the download request.",
+                retry_after=retry_after,
+            )
+        if status in (401, 403, 503):
+            if status == 401:
+                raise AccessDeniedError(
+                    f"Access denied by {domain} with HTTP 401. "
+                    "Verify your credentials; this request was not retried."
+                )
+            raise_for_challenge(
+                status_code=status,
+                headers=headers,
+                body=body,
+                url=redacted,
+                domain=domain,
+            )
+        raise HTTPError(f"{domain} returned HTTP {status} for {redacted}.", status_code=status)
 
 
 def _strip_cross_origin_credentials(
