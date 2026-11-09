@@ -6,8 +6,8 @@ publish. It exists because `npx manji-downloader` and
 `npm install -g manji-downloader` are documented in the README but cannot work
 until the packages are on the public registry.
 
-**Current status: NOT PUBLISHED. The only remaining blocker is an npm Automation
-token; everything else is done.**
+**Current status: NOT PUBLISHED. The only remaining blocker is a granular npm
+token with 2FA bypass; everything else is done.**
 
 ---
 
@@ -34,7 +34,7 @@ What is **missing**:
 
 | Blocker | Detail |
 | --- | --- |
-| npm publish token | **The one real blocker.** 2FA is `auth-and-writes`, and the `npm login` session token cannot publish unattended (`EOTP`, verified with a probe publish). An **Automation** token is required for CI. |
+| npm publish token | **The one real blocker.** 2FA is `auth-and-writes`, and the `npm login` session token cannot publish unattended (`EOTP`, verified with a probe publish). CI needs a **granular token with 2FA bypass** (see §4.2). |
 | PyPI trusted publisher | No `pypi` GitHub environment exists (0 environments). The release workflow now skips that job until `PYPI_ENABLED=true` is set, so it does not block npm. |
 | Release binaries | None exist yet. They are built by the workflow on a tag. |
 | Version tag | No `v*` tag exists locally or on the remote. |
@@ -110,7 +110,7 @@ npm whoami          # must print your npm username
 If the old token in `~/.npmrc` is stale, `npm login` replaces it. Verify it has
 publish rights to the unscoped names listed above.
 
-### 4.2 Create an **Automation** token and set the repository secret
+### 4.2 Create a granular token with 2FA bypass, then set the repository secret
 
 This is the one step that cannot be automated. Verified on 2026-11-09: the
 account has 2FA set to `auth-and-writes`, and the session token written by
@@ -118,24 +118,58 @@ account has 2FA set to `auth-and-writes`, and the session token written by
 `EOTP` (one-time password required). A tag-triggered CI release using that token
 would fail at the first platform package.
 
-npm's [Automation token](https://docs.npmjs.com/creating-and-viewing-access-tokens)
-type is designed for CI and bypasses 2FA:
+npm only offers **granular** access tokens in the web UI now; there is no
+classic "Automation" type. Use these exact settings:
 
-1. Open <https://www.npmjs.com/settings/justinreyes28/tokens>.
-2. **Generate New Token → Classic Token → Automation**.
-3. Copy it once (it is not shown again).
-4. Store it as the repository secret:
+1. Open <https://www.npmjs.com/settings/justinreyes28/tokens> →
+   **Generate New Token** → **Granular Access Token**.
+2. Fill in:
+
+   | Field | Value |
+   | --- | --- |
+   | Token name | `manji-downloader-ci` |
+   | Bypass two-factor authentication (2FA) | **Checked** — required for unattended CI |
+   | Allowed IP ranges | blank (GitHub-hosted runner IPs are dynamic) |
+   | Packages and scopes → Permissions | **Read and write (publish and stage)** |
+   | Select Packages | **All Packages** |
+   | Organizations | No access |
+   | Expiration | 30 days |
+
+   **All Packages is mandatory.** The six `manji-downloader*` packages do not
+   exist yet, so "Only select packages and scopes" cannot list them and the
+   first publish would be rejected.
+
+3. Generate, copy the token once, then:
 
    ```bash
    gh secret set NPM_TOKEN
    ```
 
-   Paste the token at the prompt. Do not commit it, and do not put it in a
-   `.npmrc` inside the repository.
+   Paste at the prompt. Never commit it and never put it in a `.npmrc` inside
+   the repository.
 
-Confirm the type before tagging: the token is only usable unattended if it was
-created as **Automation**. `npm token create` from the CLI is not sufficient
-here because it prompts for a password and an OTP interactively.
+4. Confirm the flow works before tagging. A publish that needs an OTP fails with
+   `EOTP`; the workflow will show that error on the first platform package.
+
+`npm token create` is not a workaround: it prompts for a password and an OTP
+interactively and cannot mint granular tokens at all.
+
+#### This token is temporary
+
+npm is retiring 2FA-bypass publishing around **January 2027**; such tokens will
+only be able to read private packages and stage a publish for human approval.
+Plan to migrate to trusted publishing:
+
+1. After the first successful release, open each of the six packages on
+   npmjs.com → **Settings → Trusted Publisher → GitHub Actions**.
+2. Set owner `JustinReyes28`, repository `manji-downloader`, workflow
+   filename `release.yml`, and allow direct publishing with `npm publish`.
+3. Remove `NODE_AUTH_TOKEN` from `.github/workflows/release.yml`. The workflow
+   already declares `id-token: write`, which is all OIDC needs.
+4. Revoke the granular token and delete the `NPM_TOKEN` secret.
+
+A 2FA-bypass token cannot configure trusted publishers itself — that needs an
+interactive 2FA challenge in the browser.
 
 ### 4.3 Configure PyPI trusted publishing
 
