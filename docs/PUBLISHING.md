@@ -6,7 +6,8 @@ publish. It exists because `npx manji-downloader` and
 `npm install -g manji-downloader` are documented in the README but cannot work
 until the packages are on the public registry.
 
-**Current status: NOT PUBLISHED. No release has been made.**
+**Current status: NOT PUBLISHED. The only remaining blocker is an npm Automation
+token; everything else is done.**
 
 ---
 
@@ -33,11 +34,20 @@ What is **missing**:
 
 | Blocker | Detail |
 | --- | --- |
-| npm authentication | `npm whoami` returns `E401 Unauthorized`. The token in `~/.npmrc` is expired or revoked. |
-| `NPM_TOKEN` GitHub secret | `gh secret list` returns 0 secrets. The release workflow needs this. |
-| PyPI trusted publisher | No `pypi` GitHub environment exists (0 environments). |
-| Version tag | No `v*` tag exists locally or on the remote, so the release workflow has never been triggered. |
-| Release binaries | No `.github/` artifact holds the five platform binaries yet. They are built by the workflow on a tag. |
+| npm publish token | **The one real blocker.** 2FA is `auth-and-writes`, and the `npm login` session token cannot publish unattended (`EOTP`, verified with a probe publish). An **Automation** token is required for CI. |
+| PyPI trusted publisher | No `pypi` GitHub environment exists (0 environments). The release workflow now skips that job until `PYPI_ENABLED=true` is set, so it does not block npm. |
+| Release binaries | None exist yet. They are built by the workflow on a tag. |
+| Version tag | No `v*` tag exists locally or on the remote. |
+
+Already done:
+
+| Item | Status |
+| --- | --- |
+| npm account login | Verified: `npm whoami` returns `justinreyes28` |
+| `NPM_TOKEN` secret | Set — but currently holds the session token, which cannot publish. Replace with an Automation token. |
+| Release workflow auth | Fixed: `NODE_AUTH_TOKEN` is now job-level so every platform publish authenticates |
+| macOS runners | Fixed: `macos-13`/`macos-14` are retired; now `macos-15-intel` / `macos-15` |
+| PyPI job isolation | Gated behind `vars.PYPI_ENABLED` so it cannot fail an npm-only release |
 
 Nothing here is a code problem. Each item is a one-time setup action by the
 repository owner.
@@ -100,16 +110,32 @@ npm whoami          # must print your npm username
 If the old token in `~/.npmrc` is stale, `npm login` replaces it. Verify it has
 publish rights to the unscoped names listed above.
 
-### 4.2 Create an automation token and set the repository secret
+### 4.2 Create an **Automation** token and set the repository secret
 
-```bash
-# Create an "Automation" token on npmjs.com (Account -> Access Tokens)
-# with read/write permission, then:
-gh secret set NPM_TOKEN
-```
+This is the one step that cannot be automated. Verified on 2026-11-09: the
+account has 2FA set to `auth-and-writes`, and the session token written by
+`npm login` **cannot publish unattended** — a probe publish failed with
+`EOTP` (one-time password required). A tag-triggered CI release using that token
+would fail at the first platform package.
 
-Paste the token at the prompt. Do not commit it, and do not put it in
-`.npmrc` inside the repository.
+npm's [Automation token](https://docs.npmjs.com/creating-and-viewing-access-tokens)
+type is designed for CI and bypasses 2FA:
+
+1. Open <https://www.npmjs.com/settings/justinreyes28/tokens>.
+2. **Generate New Token → Classic Token → Automation**.
+3. Copy it once (it is not shown again).
+4. Store it as the repository secret:
+
+   ```bash
+   gh secret set NPM_TOKEN
+   ```
+
+   Paste the token at the prompt. Do not commit it, and do not put it in a
+   `.npmrc` inside the repository.
+
+Confirm the type before tagging: the token is only usable unattended if it was
+created as **Automation**. `npm token create` from the CLI is not sufficient
+here because it prompts for a password and an OTP interactively.
 
 ### 4.3 Configure PyPI trusted publishing
 
