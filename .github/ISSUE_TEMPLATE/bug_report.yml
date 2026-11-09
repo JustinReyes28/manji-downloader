@@ -1,0 +1,75 @@
+name: Bug report
+description: Report a defect in Manji Downloader or one of its documented components.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Do not include credentials, cookies, signed URLs, or links to copyrighted media. Use synthetic examples.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run ...
+        2. Select ...
+        3. Observe ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system and runtime/toolchain version, when chosen.
+      placeholder: "Windows 11, runtime TBD"
+    validations:
+      required: true
+
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      description: Command, module, or adapter involved.
+      placeholder: "manji retrieve / adapter_template_01"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Redact tokens, cookies, and signed query parameters before pasting.
+      render: text
+
+  - type: checkboxes
+    id: compliance
+    attributes:
+      label: Compliance checklist
+      options:
+        - label: I have removed credentials, cookies, signed URLs, and links to copyrighted content.
+          required: true
+        - label: This report does not request or describe an access-control, DRM, paywall, or anti-bot bypass.
+          required: true

@@ -1,0 +1,48 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+manji-config.yaml
+manji-config.toml
+!manji-config.example.yaml
+!manji-config.example.toml
+cookies/
+*.cookies.txt
+*.pem
+*.key
+secrets/
+
+# Generated download output
+links.txt
+links-manifest.json
+Anime_Downloads/
+*.tmp
+manji.log
+
+# Runtime caches
+.cache/
+.manji/
+
+# Build and test output (runtime and toolchain still to be chosen)
+dist/
+build/
+out/
+coverage/
+node_modules/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+target/

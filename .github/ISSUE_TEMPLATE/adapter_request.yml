@@ -1,0 +1,78 @@
+name: Site adapter request
+description: Propose a new source adapter backed by a documented, authorized access method.
+title: "[Adapter]: "
+labels: ["adapter"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read [ARCHITECTURE.md](../ARCHITECTURE.md) and [CONTRIBUTING.md](../CONTRIBUTING.md) first.
+        Adapters are accepted only when the site permits automated access and the request documents the approved method. Do not include live links to copyrighted media.
+
+  - type: input
+    id: site_name
+    attributes:
+      label: Site or service name
+    validations:
+      required: true
+
+  - type: input
+    id: access_docs
+    attributes:
+      label: Access documentation URL
+      description: Link to official API docs, an open license, or terms that permit automated access.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: access_method
+    attributes:
+      label: Access method
+      options:
+        - Official API
+        - Open-access catalog or license
+        - User-authenticated session
+        - Other documented method
+    validations:
+      required: true
+
+  - type: dropdown
+    id: auth_mode
+    attributes:
+      label: Expected authentication mode
+      options:
+        - none
+        - api_key
+        - bearer_token
+        - cookie_session
+        - unknown
+    validations:
+      required: true
+
+  - type: textarea
+    id: robots
+    attributes:
+      label: robots.txt and rate-limit considerations
+      description: Note any Disallow rules, Crawl-delay values, or documented rate limits.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Requested behavior
+      description: What should the adapter normalize (categories, variants, metadata)?
+
+  - type: checkboxes
+    id: compliance
+    attributes:
+      label: Compliance confirmation
+      options:
+        - label: The site's terms permit automated catalog and download access for authorized users.
+          required: true
+        - label: This request does not involve bypassing anti-bot protections, DRM, paywalls, or access controls.
+          required: true
+        - label: I can help provide synthetic fixtures or documentation; no live copyrighted links.
+          required: true
+        - label: I understand maintainers may decline adapters that cannot be verified as compliant.
+          required: true

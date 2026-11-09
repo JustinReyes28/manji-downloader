@@ -1,0 +1,55 @@
+name: Feature request
+description: Propose a capability that fits the project's compliance and architecture rules.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature requests must respect the compliance rules in [COMPLIANCE.md](../COMPLIANCE.md): no access-control, DRM, paywall, or anti-bot circumvention.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What limitation or workflow problem does this address?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - CLI or interactive selection
+        - Adapter registry or source adapter
+        - Filtering, sorting, or quality fallback
+        - Downloader or links.txt export
+        - Configuration
+        - Metadata or organization
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: compliance
+    attributes:
+      label: Compliance checklist
+      options:
+        - label: This request does not involve bypassing anti-bot protections, DRM, paywalls, or access controls.
+          required: true
+        - label: This request does not ask for unthrottled scraping or evasion of rate limits.
+          required: true
