@@ -66,6 +66,11 @@ jobs:
 
   publish-python:
     needs: [verify, binaries]
+    # PyPI trusted publishing is not configured yet. Enable it by creating a
+    # `pypi` environment plus a PyPI trusted publisher, then setting the
+    # repository variable PYPI_ENABLED=true. Until then this job is skipped so
+    # the npm release can still succeed.
+    if: vars.PYPI_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment: pypi
     steps:
