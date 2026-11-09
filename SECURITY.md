@@ -28,9 +28,20 @@ Security reports are especially relevant for:
 - Path traversal, unsafe filename handling, or atomic-write/resume flaws
 - Adapter isolation failures that leak site-specific data into core modules
 - Any behavior that could enable access-control, DRM, paywall, or anti-bot circumvention
+- npm/PyPI package impersonation, version drift, or install-time binary downloads
+
+## Supply Chain
+
+- npm packages are published from GitHub Actions with provenance.
+- Python artifacts are published with PyPI trusted publishing.
+- Platform binaries are built in CI and shipped as optional npm packages; there are no install-time binary downloads.
+- GitHub Release archives include SHA-256 checksums.
+- Windows code signing and macOS notarization are planned before v1.0. Until then, users may see unsigned-binary warnings.
+- Users should only install the unscoped `manji-downloader` package and verify the repository link.
 
 ## Out of Scope
 
 - Vulnerabilities in third-party sites or services
 - Issues caused solely by user-supplied credentials or local configuration
+- Isolation between the core and third-party adapter packages; Python adapters run in-process and are trusted code
 - Requests for features that bypass access controls (see [COMPLIANCE.md](COMPLIANCE.md))

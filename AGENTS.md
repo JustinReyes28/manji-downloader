@@ -10,10 +10,31 @@ Pipeline: pasted URL → Adapter Registry → site adapter → `SeriesCatalog` �
 
 ## Current state
 
-- Repo contains specification documents and repository scaffolding only. No implementation or build tooling yet.
-- Runtime, language, and package manager are **not chosen**. Do not assume one; when decided, record the toolchain and exact commands in this file and the README.
+- Phase 1 is implemented: installable Python package, domain contracts, adapter registry, and CLI skeleton. Phases 2–3 (configuration/selection and compliance HTTP) are in progress.
+- **Runtime:** Python 3.12+ with `uv`. Package layout: `src/manji/`, console script `manji`. Python 3.14 and `uv` are installed locally.
+- `pyproject.toml` + `uv.lock` pin runtime and dev dependencies; `uv sync` sets everything up.
+
+Verified commands:
+
+```bash
+uv sync
+uv run manji version
+uv run manji adapters list
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy src
+uv build
+```
+- **Distribution:** PyPI (`manji-downloader`) and npm (`manji-downloader` plus per-platform packages). The npm package is a thin launcher for prebuilt PyInstaller binaries; see `PACKAGING.md`.
 - Specs are Markdown files at the repo root (`README.md`, `ARCHITECTURE.md`, `CONFIGURATION.md`, `COMPLIANCE.md`, `TESTING.md`, `CONTRIBUTING.md`, `ROADMAP.md`). They are the source of truth; do not contradict them, and update them when behavior changes.
 - Repository paperwork: `LICENSE` (MIT), `CODE_OF_CONDUCT.md`, `SECURITY.md`, and templates under `.github/`.
+
+## Implementation workflow
+
+- Follow [docs/phases/README.md](docs/phases/README.md) in order. Do not start a phase until the previous phase's acceptance criteria pass.
+- Keep each phase reviewable and commit with a `phase N:` prefix.
+- The first real site adapter remains blocked until an authorized source and its approved access method are documented. Use synthetic mock adapters until then.
 
 ## Repository layout
 
@@ -24,6 +45,14 @@ Pipeline: pasted URL → Adapter Registry → site adapter → `SeriesCatalog` �
 - `TESTING.md` — offline fixtures and mock-server test requirements
 - `CONTRIBUTING.md` — adapter onboarding, PR checklist, and DCO sign-off
 - `ROADMAP.md` — MVP, v0.2, and v1.0 milestones
+- `PACKAGING.md` — PyPI, npm, and standalone-binary distribution
+- `package.json` — npm launcher package
+- `bin/manji.js` — npm platform launcher
+- `npm/platforms/` — generated platform packages (not committed)
+- `test/npm/` — npm launcher tests
+- `docs/phases/` — five implementation phases with acceptance gates
+- `src/manji/` — Python package (created in Phase 1)
+- `tests/` — pytest unit/integration tests and synthetic fixtures
 - `AGENTS.md` — agent instructions (this file)
 
 ## Non-negotiable compliance rules
@@ -57,11 +86,13 @@ Keep these universal models and names stable:
 
 Every `SourceAdapter` implements:
 
-- `GetSiteMetadata()` — slug, display name, domains, default rate-limit profile
-- `CanHandle(url)`
-- `ValidateAccess(target)`
-- `ResolveSeriesCatalog(seriesUrl) -> SeriesCatalog`
-- `ResolveEpisodeVariants(episodeItem) -> MediaVariant[]`
+- `get_site_metadata()` — slug, display name, domains, default rate-limit profile
+- `can_handle(url)`
+- `validate_access(target)`
+- `resolve_series_catalog(series_url) -> SeriesCatalog`
+- `resolve_episode_variants(episode_item) -> tuple[MediaVariant, ...]`
+
+The Python contract is a `typing.Protocol` with synchronous methods; adapters are plain classes. Public plugin imports live in `manji.adapters`.
 
 Rules:
 
@@ -82,7 +113,8 @@ Rules:
 - **Zero live network calls in tests.** Use synthetic fixtures under `tests/fixtures/adapters/<site_id>/` and localhost mock servers on an ephemeral port.
 - Cover: URL routing and unsupported sites, range parser edge cases, quality fallback, deterministic selection for each sort criterion, rate limiter/`Retry-After`, `links.txt` ordering and manifest, atomic writes, and challenge/403 halting.
 - Integration tests must simulate multiple site shapes (JSON API and HTML catalog), plus 429 and challenge responses.
-- Run typecheck, lint, and tests before finishing; fix failures rather than suppressing them.
+- Run `uv run ruff check .`, `uv run ruff format --check .`, `uv run mypy src`, `uv run pytest`, and `npm test` before finishing; fix failures rather than suppressing them.
+- Packaging changes must also pass `npm pack --dry-run` and a source-tree launcher smoke test.
 
 ## Working conventions
 
@@ -90,4 +122,9 @@ Rules:
 - Never add evasion behavior, even behind a flag, "for testing".
 - Update the relevant spec doc when adding CLI flags, config keys, or adapters.
 - Document each adapter's approved access method before implementation. The specs contain TODOs for this; do not invent access methods.
-- When the toolchain is chosen, replace placeholders here with real install/build/test/lint commands so this file stays actionable.
+- Use `uv run` for all commands; do not rely on globally installed tools.
+- Python style: Ruff for lint/format, mypy for types, pytest for tests. Public contracts stay fully typed.
+- Keep the npm launcher thin: no site logic, adapters, or download behavior in JavaScript.
+- Keep `pyproject.toml`, the root `package.json`, and every platform package version in sync. CI must fail on drift.
+- Never add npm `postinstall` download scripts; platform binaries ship as optional npm packages.
+- Do not commit PyInstaller binaries or generated `npm/platforms/` packages.

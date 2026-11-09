@@ -8,7 +8,7 @@ Manji Downloader follows a pipelined, layered architecture. When a user pastes a
 
 ### Core Architectural Principles
 
-- **Universal Multi-Site Extensibility:** Site-specific catalog structures are isolated inside modular Source Adapters that normalize data into a single universal `SeriesCatalog` and `EpisodeVariant` model.
+- **Universal Multi-Site Extensibility:** Site-specific catalog structures are isolated inside modular Source Adapters that normalize data into a single universal `SeriesCatalog` and `MediaVariant` model.
 - **Interactive & Batch Dual-Mode:** Supports both guided interactive terminal menus (`manji`) and non-interactive CLI flag execution.
 - **Compliance by Design:** Per-domain policy checks (`robots.txt`, rate limits) sit directly in the request execution path across all registered site adapters.
 - **Fail-Safe Operation:** Non-bypassable guardrails ensure requests halt immediately upon permission denial, Cloudflare/anti-bot interstitials, or unrecognized challenges.
@@ -32,21 +32,23 @@ Manji Downloader follows a pipelined, layered architecture. When a user pastes a
 
 - **Responsibility:** Enable universal compatibility across multiple anime platforms by dynamically routing incoming URLs to the appropriate site module and normalizing the results.
 - **Adapter Registry Functions:**
-    - `RegisterAdapter(adapter)`: Registers a site adapter into the active runtime catalog.
-    - `ResolveAdapterForUrl(url)`: Matches the pasted URL's domain and path pattern against registered adapters and returns the matching handler (or a clear unsupported-site message).
-    - `ListSupportedSites()`: Returns metadata on all registered site adapters, their supported URL patterns, and authentication requirements.
+    - `register(adapter)`: Registers a site adapter into the active runtime catalog.
+    - `resolve_for_url(url)`: Matches the pasted URL's domain and path pattern against registered adapters and returns the matching handler (or a clear unsupported-site message).
+    - `list_supported_sites()`: Returns metadata on all registered site adapters, their supported URL patterns, and authentication requirements.
 - **Source Adapter Interface Contract (Implemented per Site):**
-    - `GetSiteMetadata()`: Returns the adapter's unique slug, display name, supported domains, and default rate-limit profile.
-    - `CanHandle(url)`: Inspects an incoming anime series or episode URL to confirm compatibility.
-    - `ValidateAccess(target)`: Verifies whether required API tokens or user session credentials are present for that site.
-    - `ResolveSeriesCatalog(seriesUrl)`: Queries the site's authorized endpoints to return a normalized `SeriesCatalog` containing the series title and categorized lists of `Episodes`, `OVAs`, `Movies`, and `Specials`.
-    - `ResolveEpisodeVariants(episodeItem)`: Queries the site's authorized endpoints for a specific episode to return normalized `MediaVariant` objects (resolution/quality tag, container format, byte size, upload timestamp, download count, and direct URL).
+    - `get_site_metadata()`: Returns the adapter's unique slug, display name, supported domains, and default rate-limit profile.
+    - `can_handle(url)`: Inspects an incoming anime series or episode URL to confirm compatibility.
+    - `validate_access(target)`: Verifies whether required API tokens or user session credentials are present for that site.
+    - `resolve_series_catalog(series_url)`: Queries the site's authorized endpoints to return a normalized `SeriesCatalog` containing the series title and categorized lists of `Episodes`, `OVAs`, `Movies`, and `Specials`.
+    - `resolve_episode_variants(episode_item)`: Queries the site's authorized endpoints for a specific episode to return normalized `MediaVariant` objects (resolution/quality tag, container format, byte size, upload timestamp, download count, and direct URL).
 - **Onboarding New Sites Later Down the Road:**
-    - Adding support for a new anime site requires only creating a new adapter module implementing the interface above and registering its domain pattern—no changes are required in the CLI prompt engine, quality sorter, or downloader.
+    - Adding support for a new anime site requires only creating a new adapter class implementing the protocol above and registering its host patterns—no changes are required in the CLI prompt engine, quality sorter, or downloader. Third-party adapters can later ship as separate Python packages that register through the `manji.adapters` entry-point group.
 
 <!-- TODO: document approved access method for this source. -->
 
 <!-- TODO: Add per-site adapter specification stubs as target anime sites are provided -->
+
+In the Python implementation, `SourceAdapter` is a `typing.Protocol` with synchronous methods and adapters are plain classes. The registry and public plugin imports live in `manji.adapters`.
 
 ### 2.3 Variant Filtering & Sorting Engine
 
@@ -73,7 +75,7 @@ Manji Downloader follows a pipelined, layered architecture. When a user pastes a
 
 - **Responsibility:** Regulate request frequency independently for each supported anime site—especially when resolving download links across dozens of episodes—to protect remote infrastructure from overloading.
 - **Mechanisms:**
-    - Independent token bucket / leaky bucket state per target host.
+    - Independent per-host limiter state with configurable minimum delays.
     - Immediate compliance with `Retry-After` headers on HTTP 429 / 503 responses.
     - Configurable per-site minimum delays between consecutive episode metadata lookups.
     - Strict concurrency caps (replacing unthrottled multi-threading with bounded, polite worker pools).
@@ -110,6 +112,23 @@ Manji Downloader follows a pipelined, layered architecture. When a user pastes a
 - **Key Functions:**
     - Configurable log levels (DEBUG, INFO, WARN, ERROR).
     - Automatic redaction of sensitive data (passwords, API keys, session cookies, signed URL tokens).
+
+### 2.10 Distribution & Packaging
+
+- **Responsibility:** Deliver the same Python core through Python-native and Node-native entry points.
+- **Channels:**
+    - PyPI package `manji-downloader` with the `manji` console script.
+    - npm package `manji-downloader` plus per-platform optional packages containing PyInstaller binaries.
+    - Standalone archives attached to GitHub Releases.
+- **Rules:**
+    - The Python package is the source of truth; the npm launcher contains no site logic.
+    - The launcher resolves `manji-downloader-{platform}-{arch}` and spawns the bundled binary with inherited stdio.
+    - Platform packages use `os`/`cpu` metadata so npm installs only the matching binary.
+    - No `postinstall` downloads; binaries are shipped in optional dependency packages.
+    - Python and npm versions must match; releases are tagged `vX.Y.Z`.
+    - Built binaries are CI artifacts, never committed.
+
+See [PACKAGING.md](PACKAGING.md) for the build and release process.
 
 ## 3. Challenge-Aware HTTP Layer
 

@@ -16,6 +16,8 @@ Manji Downloader searches for configuration files in the following hierarchical 
 
 Below is the complete configuration structure for Manji Downloader, including extensible site adapter slots for onboarding new anime sites over time.
 
+Configuration is validated strictly: unknown keys, invalid enum values, and unsafe rate-limit settings are rejected with a clear error.
+
 ### YAML Schema Structure
 
 ```yaml
@@ -36,7 +38,7 @@ network:
   # Maximum connection retries on transient network failures
   max_retries: 3
 
-  # Honor robots.txt directives across all supported anime sites (strongly recommended: true)
+  # Honor robots.txt directives across all supported anime sites (must be true; disabling is rejected)
   respect_robots_txt: true
 
 # Multi-Site Adapter Registry (add new supported anime sites here as adapters are created)
@@ -47,7 +49,7 @@ site_adapters:
     base_domain: "site01.example.org"
     auth_mode: "api_key" # Options: none | api_key | bearer_token | cookie_session
     api_key_env: "${ENV_SITE01_API_KEY}"
-    min_request_delay_seconds: 1.5
+    min_request_delay_seconds: 1.5  # Minimum 1.0
     # TODO: document approved access method for this source.
 
   # Adapter Slot 02 Placeholder
@@ -56,7 +58,7 @@ site_adapters:
     base_domain: "site02.example.org"
     auth_mode: "cookie_session"
     cookie_file: "~/.config/manji/cookies/site02_cookies.txt"
-    min_request_delay_seconds: 2.0
+    min_request_delay_seconds: 2.0  # Minimum 1.0
     # TODO: document approved access method for this source.
 
   # TODO: Add additional anime site adapter definitions as new sites are provided
@@ -90,10 +92,10 @@ media_selection:
 
 # Global concurrency and rate limiting controls
 rate_limits:
-  # Maximum concurrent requests per site domain
+  # Maximum concurrent requests per site domain (1-2; compliance cap)
   max_concurrent_requests_per_site: 2
 
-  # Default inter-request delay in seconds between episode metadata/link lookups
+  # Default inter-request delay in seconds between episode metadata/link lookups (minimum 1.0)
   default_request_delay_seconds: 1.5
 
 # Local cache settings

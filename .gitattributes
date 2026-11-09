@@ -1,10 +1,17 @@
 * text=auto eol=lf
 
 *.md text eol=lf
+*.py text eol=lf
+*.pyi text eol=lf
+*.js text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
 *.json text eol=lf
 *.toml text eol=lf
+uv.lock text eol=lf
+package-lock.json text eol=lf
 *.sh text eol=lf
 
 *.bat text eol=crlf

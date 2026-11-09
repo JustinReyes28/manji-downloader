@@ -16,6 +16,7 @@ The objective of the MVP is to establish the universal **Source Adapter Registry
 - **Compliant HTTP Engine & Rate Limiter:** Implement per-domain `robots.txt` enforcement, inter-episode lookup delays, and `Retry-After` backoff.
 - **Initial Reference Site Adapter:** Implement the first source adapter for an authorized API/site to validate the end-to-end universal pipeline.
 - **Core Test Suite:** Unit tests for URL routing, episode range parsing, variant sorting, and mock server integration tests.
+- **Distribution Channels:** Publish the Python package to PyPI and the npm launcher (`npx manji-downloader`) backed by prebuilt Windows, macOS, and Linux binaries.
 
 <!-- TODO: document approved access method for this source. -->
 
@@ -33,6 +34,7 @@ The focus of v0.2 is onboarding additional anime site adapters, enriching the te
     - Gracefully pause CLI execution and prompt the user with the URL for manual resolution in a standard web browser.
     - Resume operation once the user confirms completion and updates session data.
 - **Local Catalog Caching:** Cache resolved series catalogs and episode variant lists via `ETag` / `If-Modified-Since` headers so re-running with a different episode range does not re-query the site.
+- **Signed Release Artifacts:** Code-sign Windows binaries, notarize macOS binaries, and publish npm packages with provenance.
 
 <!-- TODO: List specific Batch 1 anime site adapters as target URLs/sites are provided -->
 
@@ -44,11 +46,12 @@ Version 1.0 represents the stable, production-ready release of Manji Downloader 
 
 ### Deliverables & Goals
 
-- **Pluggable Site Adapter Architecture:** Allow users and contributors to drop new site adapter definitions into a plugins directory without recompiling the core `manji` binary.
+- **Pluggable Site Adapter Architecture:** Allow users and contributors to install adapter packages that register through the `manji.adapters` entry-point group without changing the core package.
 - **Cross-Site Series Sync ("Watchlist" Mode):** Track previously downloaded anime episodes locally and fetch or export only newly released episodes across supported sites.
 - **Quality & Site Fallback Profiles:** Automatically fall back to a secondary resolution (`720p` if `1080p` is missing) or an alternative configured authorized mirror when requested by the user.
 - **Media Server Metadata Sidecars:** Support exporting series and episode metadata in standardized media center formats (Jellyfin / Plex / Kodi NFO, JSON-LD, YAML).
 - **Compliance Audit Tooling (**`manji audit`): Dedicated sub-command to inspect active site adapters, verify `robots.txt` compliance, and validate per-site rate-limit safety before launching batch jobs.
 - **Resumable Transfers & Exclusion Registry:** Full byte-range resume on interrupted direct downloads and automated synchronization with the maintainer-managed domain opt-out list.
+- **Broader Distribution:** Homebrew, Scoop, and winget manifests alongside npm and PyPI.
 
 <!-- TODO: Identify candidate authorized anime platforms for official v1.0 adapter certification -->

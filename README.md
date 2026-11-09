@@ -2,7 +2,7 @@
 
 **Manji Downloader** is a compliance-first, universal command-line (CLI) anime series and episodic media retrieval assistant. Built around a pluggable multi-site adapter architecture, it allows you to paste an anime series URL from any supported authorized source, interactively select episodes, OVAs, movies, or specials, filter by video quality and sorting criteria, and either download files locally or export batch links.
 
-> **Project status:** specification phase. The repository currently contains the architecture, configuration, compliance, testing, and roadmap documents. No implementation or toolchain has been chosen yet.
+> **Project status:** Phase 1 of 5 complete — installable Python package, domain contracts, adapter registry, and CLI skeleton. Phases 2–5 are in progress; distribution will be available on PyPI and npm (`npx manji-downloader`).
 
 ## 1. Overview
 
@@ -11,7 +11,7 @@ Manji Downloader provides a unified, interactive CLI experience across multiple 
 - **Primary Goal:** Provide a single, universal CLI interface (`manji`) to discover, filter, and organize anime series and episodic media across a growing list of compatible, authorized sites.
 - **Interactive Experience:** Inspired by streamlined batch-link workflows (such as [Tokyo-Downloader](https://github.com/MaJoRX0/Tokyo-Downloader)), allowing users to paste a series link and interactively choose episode ranges, media categories, video resolutions, and sorting preferences.
 - **Philosophy:** Compliance-first architecture with strict adherence to access controls, `robots.txt`, terms of service, and polite rate limits across every configured site adapter.
-- **Current Status:** Scaffolding and multi-site adapter specification phase.
+- **Current Status:** Python implementation; Phase 1 of 5 complete; npm packaging planned.
 
 ## 2. Authorized-Use and Legal Notice
 
@@ -36,6 +36,7 @@ Manji Downloader provides a unified, interactive CLI experience across multiple 
 - **Dual Output Modes (Direct Download or Batch Link Export):**
     - **Direct Compliant Download:** Stream and organize anime episodes locally into structured series/season folders using the built-in rate-limited downloader.
     - **Batch Link Export (`links.txt`):** Save resolved direct download URLs as a newline-separated list in `links.txt` (alongside optional filename mapping manifests) for bulk import into external download managers (such as IDM, `aria2`, `wget`, or `yt-dlp`).
+- **npm & PyPI Distribution:** Install from PyPI with `uv` or `pipx`, or run `npx manji-downloader` with a prebuilt Windows/macOS/Linux binary; npm users do not need a Python environment.
 - **Compliance Engine:** Per-domain `robots.txt` verification, polite inter-episode lookup delays, and automatic `Retry-After` backoff.
 - **Challenge-Aware Layer:** Safe handling of authentication or verification challenges via official APIs, user-provided session cookies, or manual browser handoff without automated evasion.
 
@@ -49,23 +50,57 @@ Manji Downloader is designed to expand compatibility across multiple anime platf
 | `adapter_template_02` | `https://[site-02-placeholder]/series/*` | Official API / Open Catalog | Planned (v0.2) |
 | `adapter_template_03` | `https://[site-03-placeholder]/watch/*` | User-Provided Session | Planned (v0.2) |
 
-## 5. Quickstart Placeholders
+## 5. Quickstart
 
 ### Prerequisites
 
-- Target runtime environment (e.g., Python 3.10+ / Go 1.21+ / Node.js 18+)
+- **npm path:** Node.js 20+ (includes `npm` and `npx`)
+- **Python path:** Python 3.12+ and [uv](https://docs.astral.sh/uv/)
 - Valid credentials, API keys, or user-supplied session cookies for authorized sources requiring login
 - Configured local destination directory or external download manager
 
-### Installation Placeholder
+### Installation
+
+#### npm
 
 ```bash
-# Placeholder: Package installation command
+# One-off run without a global install
+npx manji-downloader --help
 
-[package-manager] install manji-downloader
+# Global install
+npm install -g manji-downloader
+manji --help
 ```
 
-### Interactive Workflow Placeholder
+`npm manji-downloader` on its own is not a command. Use `npx manji-downloader` or install the package globally.
+
+#### Python
+
+```bash
+uv tool install manji-downloader
+# or
+pipx install manji-downloader
+manji --help
+```
+
+#### From source
+
+```bash
+uv sync
+uv run manji --help
+uv run manji version
+uv run manji adapters list
+
+# Quality gates
+uv run pytest
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy src
+```
+
+The npm package ships prebuilt Windows, macOS, and Linux binaries. See [PACKAGING.md](PACKAGING.md) for the build and release process.
+
+### Interactive Workflow
 
 ```bash
 # Launch Manji Downloader interactive mode
@@ -83,7 +118,7 @@ manji
 # 7. Select Action (1: Direct Local Download | 2: Export URLs to links.txt): [user input]
 ```
 
-### Non-Interactive CLI Usage Placeholders
+### Non-Interactive CLI Usage
 
 ```bash
 # General syntax placeholder
@@ -119,7 +154,7 @@ For complete schema details and configuration examples, refer to [CONFIGURATION.
 
 ### How does Manji Downloader support multiple anime sites?
 
-Manji Downloader uses a modular **Source Adapter Interface**. Each supported site has a dedicated adapter module that translates that site's catalog structure into Manji Downloader's universal `SeriesCatalog` and `EpisodeVariant` format. When you paste a link, the adapter registry automatically matches the domain and handles the rest seamlessly.
+Manji Downloader uses a modular **Source Adapter Interface**. Each supported site has a dedicated adapter module that translates that site's catalog structure into Manji Downloader's universal `SeriesCatalog` and `MediaVariant` format. When you paste a link, the adapter registry automatically matches the domain and handles the rest seamlessly.
 
 ### How do I choose specific episodes, OVAs, or quality tiers?
 
@@ -128,6 +163,10 @@ When you paste a series URL in interactive mode (or pass CLI flags), Manji Downl
 ### Can I export links to use with Internet Download Manager (IDM), aria2, or wget?
 
 Yes. Selecting the batch export option saves all resolved episode download URLs into `links.txt` (one URL per line), along with an optional rename manifest so your downloaded episodes retain clean, standardized filenames.
+
+### Can I run it with npx?
+
+Yes. `npx manji-downloader` downloads the npm launcher and the matching prebuilt binary, so no Python environment is required. `npm manji-downloader` alone is not a command; use `npx manji-downloader` or `npm install -g manji-downloader`. The PyPI path remains available for Python users.
 
 ### What happens if a supported site enables Cloudflare or bot challenges?
 
@@ -143,6 +182,8 @@ Manji Downloader never attempts to bypass anti-bot protections or DRM. If a site
 | [TESTING.md](TESTING.md) | Offline fixture strategy, unit and mock-server integration tests |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Adapter onboarding, pull request checklist, and DCO sign-off |
 | [ROADMAP.md](ROADMAP.md) | MVP, v0.2, and v1.0 deliverables |
+| [PACKAGING.md](PACKAGING.md) | PyPI, npm, and standalone-binary distribution |
+| [Development phases](docs/phases/README.md) | Five incremental implementation phases with acceptance gates |
 
 ## Contributing
 
