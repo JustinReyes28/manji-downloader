@@ -119,10 +119,12 @@ site_adapters:
     )
     cookie_dir = tmp_path / "cookies"
     cookie_dir.mkdir()
-    _write(cookie_dir / "alpha.txt", "# Netscape HTTP Cookie File\n")
+    cookie = cookie_dir / "alpha.txt"
+    _write(cookie, "# Netscape HTTP Cookie File\n")
+    cookie.chmod(stat.S_IRUSR | stat.S_IWUSR)
 
     loaded = load_config(explicit=path, cwd=tmp_path, env={"HOME": str(tmp_path)})
-    assert loaded.config.site_adapters["alpha"].cookie_file == str(cookie_dir / "alpha.txt")
+    assert loaded.config.site_adapters["alpha"].cookie_file == str(cookie)
     assert loaded.config.cache.directory == str(tmp_path / ".cache" / "manji")
 
 
