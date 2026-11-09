@@ -5,12 +5,13 @@ how a release is cut, and what still needs manual cleanup. It exists because
 release mistakes here are expensive — npm versions are effectively permanent, and
 a half-published release breaks `npx` for some platforms.
 
-**Current status: PUBLISHED. `0.1.0` is live on npm; `0.1.1` adds PyPI.**
+**Current status: npm `0.1.0` is PUBLIC and installable. `0.1.1` is prepared in
+the repository but NOT yet released — it is waiting on two browser-only,
+2FA-gated setup steps described in §4.1.**
 
 ```bash
-npx manji-downloader@0.1.1 version     # -> manji 0.1.1
-npm install -g manji-downloader        # -> manji version -> manji 0.1.1
-uv tool install manji-downloader==0.1.1
+npx manji-downloader version      # -> works today, 0.1.0
+npm install -g manji-downloader   # -> works today, 0.1.0
 ```
 
 Release run: <https://github.com/JustinReyes28/manji-downloader/actions/runs/42598433091>
@@ -135,7 +136,13 @@ artifact is missing instead of publishing a partial release.
 Publishing is **tag-driven** and uses **trusted publishing (OIDC)** for npm and
 PyPI. No long-lived registry token is stored.
 
-### 4.1 Prerequisites (one-time)
+### 4.1 Prerequisites (one-time, browser only)
+
+> **These two steps cannot be automated.** npm's own API documentation states
+> that `POST /-/package/{package}/trust` requires a valid `npm-otp` on every
+> call and that granular tokens with `bypass_2fa: true` are rejected with
+> `403 Forbidden` for trusted-publisher configuration. There is no
+> non-interactive path, and no agent can complete these.
 
 **npm — a trusted publisher on each of the six packages.** Open each package on
 npmjs.com → **Settings → Trusted Publisher → GitHub Actions**:
@@ -146,7 +153,18 @@ npmjs.com → **Settings → Trusted Publisher → GitHub Actions**:
 | Repository | `manji-downloader` |
 | Workflow filename | `release.yml` |
 | Environment name | blank |
-| Allowed actions | allow **`npm publish`** |
+| Allowed actions | allow **`npm publish`** (`createPackage`) |
+
+The six packages:
+
+```
+manji-downloader
+manji-downloader-win32-x64
+manji-downloader-darwin-x64
+manji-downloader-darwin-arm64
+manji-downloader-linux-x64
+manji-downloader-linux-arm64
+```
 
 Notes that have bitten before:
 
@@ -155,6 +173,8 @@ Notes that have bitten before:
   or it expires. Configure immediately before tagging.
 - OIDC needs **npm ≥ 11.5.1 / Node ≥ 22.14**. The workflow uses Node 24 and
   asserts the npm version.
+- `npm whoami` does **not** verify trusted publishing. Only an actual publish
+  does.
 
 **PyPI — a trusted publisher.** PyPI → Publishing → add a pending publisher with
 owner `JustinReyes28`, repository `manji-downloader`, workflow `release.yml`,
