@@ -1,5 +1,9 @@
 # Manji Downloader — Packaging & Distribution
 
+> **Publishing status:** the npm and PyPI packages are not published yet. See
+> [docs/PUBLISHING.md](docs/PUBLISHING.md) for verified name availability, the
+> remaining blockers, and the step-by-step release checklist.
+
 ## Channels
 
 | Channel | Command | Runtime |

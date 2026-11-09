@@ -2,7 +2,7 @@
 
 **Manji Downloader** is a compliance-first, universal command-line (CLI) anime series and episodic media retrieval assistant. Built around a pluggable multi-site adapter architecture, it allows you to paste an anime series URL from any supported authorized source, interactively select episodes, OVAs, movies, or specials, filter by video quality and sorting criteria, and either download files locally or export batch links.
 
-> **Project status:** Phases 1–5 complete — a working mock-mode core with the full CLI, compliant HTTP layer, downloader, link export, and packaging scaffolding. No production site adapter exists yet; the first adapter remains blocked on an authorized source with a documented access method.
+> **Project status:** Phases 1–5 complete — a working mock-mode core with the full CLI, compliant HTTP layer, downloader, link export, and packaging scaffolding. No production site adapter exists yet; the first adapter remains blocked on an authorized source with a documented access method. The npm packages are **not published yet** — see [docs/PUBLISHING.md](docs/PUBLISHING.md) for what remains.
 
 ## 1. Overview
 
@@ -207,6 +207,7 @@ Manji Downloader never attempts to bypass anti-bot protections or DRM. If a site
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Adapter onboarding, pull request checklist, and DCO sign-off |
 | [ROADMAP.md](ROADMAP.md) | MVP, v0.2, and v1.0 deliverables |
 | [PACKAGING.md](PACKAGING.md) | PyPI, npm, and standalone-binary distribution |
+| [docs/PUBLISHING.md](docs/PUBLISHING.md) | npm/PyPI publishing status, blockers, and the release checklist |
 | [Development phases](docs/phases/README.md) | Five incremental implementation phases with acceptance gates |
 
 ## Contributing

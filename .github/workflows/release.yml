@@ -75,6 +75,9 @@ jobs:
   publish-npm:
     needs: [verify, binaries]
     runs-on: ubuntu-latest
+    env:
+      # Must be job-level: every publish step needs it, not just the last one.
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -92,9 +95,11 @@ jobs:
             if [ -d "npm/platforms/platform-$platform" ]; then
               mv "npm/platforms/platform-$platform" "npm/platforms/$platform"
             fi
+            if [ ! -f "npm/platforms/$platform/package.json" ]; then
+              echo "::error::missing platform package for $platform"
+              exit 1
+            fi
             npm publish "npm/platforms/$platform" --access public --provenance
           done
       - name: Publish root launcher last
         run: npm publish --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

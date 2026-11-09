@@ -22,7 +22,7 @@ The objective of the MVP is to establish the universal **Source Adapter Registry
 ### Remaining
 
 - **Initial Reference Site Adapter:** the first real adapter is blocked until an authorized source and its approved access method are documented. Until then only synthetic test adapters exist.
-- **Distribution go-live:** publishing to PyPI and npm has not been performed.
+- **Distribution go-live:** publishing to PyPI and npm has not been performed. See [docs/PUBLISHING.md](docs/PUBLISHING.md) for the blockers and the release checklist.
 
 <!-- TODO: document approved access method for this source. -->
 
