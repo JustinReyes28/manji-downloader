@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Feature requests must respect the compliance rules in [COMPLIANCE.md](../COMPLIANCE.md): no access-control, DRM, paywall, or anti-bot circumvention.
+        Feature requests must respect the compliance rules in [COMPLIANCE.md](https://github.com/JustinReyes28/manji-downloader/blob/main/COMPLIANCE.md): no access-control, DRM, paywall, or anti-bot circumvention.
 
   - type: textarea
     id: problem

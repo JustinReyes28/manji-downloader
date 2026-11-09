@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Read [ARCHITECTURE.md](../ARCHITECTURE.md) and [CONTRIBUTING.md](../CONTRIBUTING.md) first.
+        Read [ARCHITECTURE.md](https://github.com/JustinReyes28/manji-downloader/blob/main/ARCHITECTURE.md) and [CONTRIBUTING.md](https://github.com/JustinReyes28/manji-downloader/blob/main/CONTRIBUTING.md) first.
         Adapters are accepted only when the site permits automated access and the request documents the approved method. Do not include live links to copyrighted media.
 
   - type: input
