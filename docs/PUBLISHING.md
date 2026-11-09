@@ -6,8 +6,40 @@ publish. It exists because `npx manji-downloader` and
 `npm install -g manji-downloader` are documented in the README but cannot work
 until the packages are on the public registry.
 
-**Current status: NOT PUBLISHED. The only remaining blocker is a granular npm
-token with 2FA bypass; everything else is done.**
+**Current status: PUBLISHED. `v0.1.0` was released on 2026-11-09 and all six
+packages are live on npm.**
+
+```bash
+npx manji-downloader@0.1.0 version     # -> manji 0.1.0
+npm install -g manji-downloader        # -> manji version -> manji 0.1.0
+```
+
+Release run: <https://github.com/JustinReyes28/manji-downloader/actions/runs/42598433091>
+
+| Package | Version |
+| --- | --- |
+| `manji-downloader` | 0.1.0 |
+| `manji-downloader-win32-x64` | 0.1.0 |
+| `manji-downloader-darwin-x64` | 0.1.0 |
+| `manji-downloader-darwin-arm64` | 0.1.0 |
+| `manji-downloader-linux-x64` | 0.1.0 |
+| `manji-downloader-linux-arm64` | 0.1.0 |
+
+### Follow-ups from the first release
+
+- **Staged placeholders remain.** npm creates a `0.0.0-stage` placeholder version
+  on each package during first publish. It is harmless (it is not the `latest`
+  dist-tag) but cannot be removed by an unattended token — unpublish requires an
+  interactive OTP. Remove it in a browser session if you want a clean version
+  list.
+- **`manji-downloader-probe-zz` exists.** A throwaway package was published while
+  verifying that the token could publish unattended. It is unrelated to the
+  project and should be deleted from npmjs.com (Packages → delete), which needs
+  an interactive 2FA confirmation.
+- **Migrate to trusted publishing** before January 2027 (see §4.2).
+- **PyPI is still not published** — the `publish-python` job was skipped because
+  `PYPI_ENABLED` is unset. Follow §4.3, then set the variable and re-tag a new
+  version (npm already holds `0.1.0`).
 
 ---
 
