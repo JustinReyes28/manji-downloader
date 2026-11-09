@@ -6,7 +6,7 @@ This document outlines the planned progression of **Manji Downloader** from its 
 
 The objective of the MVP is to establish the universal **Source Adapter Registry**, the interactive `manji` CLI wizard, and the core downloading/link-export pipeline.
 
-**Status:** Phases 1–5 of the implementation plan are complete. The package, contracts, configuration, selection engine, compliance HTTP layer, downloader, link exporter, organizer, CLI commands, wizard, and packaging scaffolding all exist and are covered by tests against synthetic mock adapters. Distribution is live: `0.1.0` shipped to npm and `0.1.1` adds PyPI. The MVP is still **not** useful to end users, because no production site adapter exists — that is the remaining blocker below.
+**Status:** Phases 1–5 of the implementation plan are complete. The package, contracts, configuration, selection engine, compliance HTTP layer, downloader, link exporter, organizer, CLI commands, wizard, and packaging all exist and are covered by tests against synthetic mock adapters. **npm `0.1.0` is published** and installable via `npx manji-downloader`. `0.1.1` is prepared in the repository (trusted publishing, PyPI job enabled) but not yet released. The MVP is still **not** useful to end users, because no production site adapter exists — that is the remaining blocker below.
 
 ### Completed
 

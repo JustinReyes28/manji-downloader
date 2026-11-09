@@ -65,10 +65,10 @@ Manji Downloader is designed to expand compatibility across multiple anime platf
 
 ```bash
 # One-off run without a global install
-npx manji-downloader@0.1.1 --help
+npx manji-downloader --help
 
 # Global install
-npm install -g manji-downloader@0.1.1
+npm install -g manji-downloader
 manji --help
 ```
 

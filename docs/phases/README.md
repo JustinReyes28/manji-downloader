@@ -32,8 +32,8 @@ This directory replaces the single implementation plan with five incremental pha
 
 ## Post-Phase 5 status
 
-- **Publishing is done.** npm `0.1.0` shipped on 2026-11-09 and `0.1.1` adds PyPI. Releases are tag-driven through `.github/workflows/release.yml`; see [docs/PUBLISHING.md](../PUBLISHING.md).
-- **The pull request workflow is in use.** PRs #1–#5 merged into `main`.
+- **npm is published.** `0.1.0` shipped on 2026-11-09 and is installable with `npx manji-downloader`. Releases are tag-driven through `.github/workflows/release.yml`; see [docs/PUBLISHING.md](../PUBLISHING.md).
+- **`0.1.1` is prepared but not released.** It moves npm publishing to trusted publishing (OIDC) and enables the PyPI job. It needs two browser-only, 2FA-gated setup steps (npm trusted publishers, PyPI publisher) before tagging.
 
 ## Remaining blocker
 
