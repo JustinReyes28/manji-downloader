@@ -30,16 +30,11 @@ This directory replaces the single implementation plan with five incremental pha
 | [4. Retrieval Pipeline](phase-4-retrieval-pipeline.md) | Downloader, resume, `links.txt`, manifests, filename templates, sidecars | Phase 3 | Complete |
 | [5. CLI Integration & Release](phase-5-integration-and-release.md) | Full commands, wizard, end-to-end tests, npm/PyPI packaging, docs, PR | Phase 4 | Complete |
 
-## Current blockers
+## Post-Phase 5 status
 
-- **No real site adapter can be implemented yet.** A site must be designated and its approved access method documented (API/ToS, auth mode, robots/rate-limit notes). Until then, only synthetic test adapters are in scope.
-- **npm names must be rechecked before publishing.** `manji-downloader` and `manji-downloader-win32-x64` were unclaimed when this plan was written; verify again before the release.
+- **Publishing is done.** npm `0.1.0` shipped on 2026-11-09 and `0.1.1` adds PyPI. Releases are tag-driven through `.github/workflows/release.yml`; see [docs/PUBLISHING.md](../PUBLISHING.md).
+- **The pull request workflow is in use.** PRs #1–#5 merged into `main`.
 
-## Working branch
+## Remaining blocker
 
-Implementation is on `feat/python-mvp-foundation`. One branch with one commit per phase is fine; open the pull request after Phase 5, or earlier if you want feedback on a phase.
-
-## Post-Phase 5 blockers
-
-- **Publishing has not happened.** PyPI and npm releases, signing, and notarization are release-time actions that require credentials and go-ahead.
-- **The pull request is not open.** The branch is committed locally; pushing and opening the PR needs network access and maintainer approval.
+- **No real site adapter can be implemented yet.** A site must be designated and its approved access method documented (API/ToS, auth mode, robots/rate-limit notes). Until then, only synthetic test adapters are in scope, and `manji adapters list` reports no adapters.

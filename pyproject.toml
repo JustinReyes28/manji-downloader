@@ -1,6 +1,6 @@
 [project]
 name = "manji-downloader"
-version = "0.1.0"
+version = "0.1.1"
 description = "Compliance-first CLI for retrieving anime series and episodic media from authorized sources."
 readme = "README.md"
 license = { file = "LICENSE" }

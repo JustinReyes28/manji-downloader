@@ -82,15 +82,28 @@ jobs:
   publish-npm:
     needs: [verify, binaries]
     runs-on: ubuntu-latest
-    env:
-      # Must be job-level: every publish step needs it, not just the last one.
-      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          registry-url: "https://registry.npmjs.org"
+          # npm trusted publishing (OIDC) needs npm >= 11.5.1, which ships with
+          # Node 22.14+. Node 24 is used here so the requirement is unambiguous.
+          # No registry-url: setup-node would write an .npmrc with an empty
+          # _authToken, which can short-circuit OIDC detection with ENEEDAUTH.
+          node-version: "24"
+          package-manager-cache: false
+      - name: Require an npm version that supports trusted publishing
+        run: |
+          version="$(npm --version)"
+          echo "npm $version"
+          node -e '
+            const [major, minor, patch] = process.argv[1].split(".").map(Number);
+            const ok = major > 11 || (major === 11 && (minor > 5 || (minor === 5 && patch >= 1)));
+            if (!ok) {
+              console.error(`npm ${process.argv[1]} is too old; trusted publishing needs >= 11.5.1`);
+              process.exit(1);
+            }
+          ' "$version"
       - uses: actions/download-artifact@v4
         with:
           pattern: platform-*
@@ -106,6 +119,32 @@ jobs:
               echo "::error::missing platform package for $platform"
               exit 1
             fi
+          done
+      - name: Verify launcher pins match the build version
+        shell: bash
+        run: |
+          if [ -f .npmrc ]; then
+            echo "::warning::removing a stray .npmrc so OIDC is used instead of tokens"
+            rm -f .npmrc
+          fi
+          expected="$(node -p "require('./package.json').version")"
+          echo "release version: ${expected}"
+          node -e '
+            const pkg = require("./package.json");
+            const expected = pkg.version;
+            const problems = [];
+            for (const [name, pinned] of Object.entries(pkg.optionalDependencies ?? {})) {
+              if (pinned !== expected) problems.push(`${name} pinned at ${pinned}`);
+            }
+            if (problems.length) {
+              console.error("optionalDependencies out of sync with " + expected + ": " + problems.join(", "));
+              process.exit(1);
+            }
+            console.log("launcher pins match " + expected);
+          '
+      - name: Publish platform packages
+        run: |
+          for platform in win32-x64 darwin-x64 darwin-arm64 linux-x64 linux-arm64; do
             npm publish "npm/platforms/$platform" --access public --provenance
           done
       - name: Publish root launcher last
