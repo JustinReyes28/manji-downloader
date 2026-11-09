@@ -25,8 +25,8 @@ This directory replaces the single implementation plan with five incremental pha
 | Phase | Focus | Depends on | Status |
 | --- | --- | --- | --- |
 | [1. Foundation & Contracts](phase-1-foundation.md) | Python package, domain models, adapter protocol, CLI skeleton, CI | — | Complete |
-| [2. Configuration & Selection](phase-2-config-and-selection.md) | YAML/TOML config, validation, ranges, quality and sorting | Phase 1 | In progress |
-| [3. Compliance HTTP & Mock Adapters](phase-3-compliance-http.md) | Rate limiter, robots.txt, Retry-After, challenge halting, redaction, fixtures | Phase 2 | Not started |
+| [2. Configuration & Selection](phase-2-config-and-selection.md) | YAML/TOML config, validation, ranges, quality and sorting | Phase 1 | Complete |
+| [3. Compliance HTTP & Mock Adapters](phase-3-compliance-http.md) | Rate limiter, robots.txt, Retry-After, challenge halting, redaction, fixtures | Phase 2 | In progress |
 | [4. Retrieval Pipeline](phase-4-retrieval-pipeline.md) | Downloader, resume, `links.txt`, manifests, filename templates, sidecars | Phase 3 | Not started |
 | [5. CLI Integration & Release](phase-5-integration-and-release.md) | Full commands, wizard, end-to-end tests, npm/PyPI packaging, docs, PR | Phase 4 | Not started |
 

@@ -40,6 +40,6 @@ def test_help_without_arguments() -> None:
 def test_error_rendering() -> None:
     from manji.cli.app import _exit_with_error
 
-    with pytest.raises(Exception) as excinfo:
+    with pytest.raises(SystemExit) as excinfo:
         _exit_with_error(UnsupportedSiteError("no adapter"))
-    assert getattr(excinfo.value, "exit_code", None) == 3
+    assert excinfo.value.code == 3

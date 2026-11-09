@@ -100,7 +100,7 @@ ignore_missing_imports = true
 minversion = "8.0"
 testpaths = ["tests"]
 pythonpath = ["."]
-addopts = "-ra --strict-markers --strict-config --cov=manji --cov-report=term-missing"
+addopts = "-ra --strict-markers --strict-config --basetemp=.pytest-tmp --cov=manji --cov-report=term-missing"
 markers = [
   "unit: fast isolated tests",
   "integration: tests against local mock servers",

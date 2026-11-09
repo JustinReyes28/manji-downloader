@@ -2,21 +2,65 @@
 
 from __future__ import annotations
 
-import sys
-from typing import Annotated, NoReturn
+import functools
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Annotated, Any, NoReturn
 
 import typer
 from rich.console import Console
 from rich.table import Table
 
 from manji.adapters import get_registry
+from manji.config import AppConfig, LoadedConfig, load_config
 from manji.errors import ManjiError
 from manji.version import BUILD_DATE, COMMIT, __version__
 
 console = Console()
 error_console = Console(stderr=True)
 
-app = typer.Typer(
+
+class ManjiApp(typer.Typer):
+    """Typer app that maps ``ManjiError`` to the documented exit codes."""
+
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        try:
+            return super().__call__(*args, **kwargs)
+        except ManjiError as error:
+            _exit_with_error(error)
+        except KeyboardInterrupt:
+            error_console.print("[yellow]interrupted[/yellow]")
+            raise SystemExit(130) from None
+
+
+def guarded[F: Callable[..., Any]](command: F) -> F:
+    """Map domain errors raised by a command to its documented exit code."""
+
+    @functools.wraps(command)
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
+        try:
+            return command(*args, **kwargs)
+        except ManjiError as error:
+            _exit_with_error(error)
+
+    return wrapper  # type: ignore[return-value]
+
+
+@dataclass(slots=True)
+class CliState:
+    """Values resolved by the root callback and shared with subcommands."""
+
+    config_path: str | None = None
+    loaded: LoadedConfig | None = None
+
+    @property
+    def config(self) -> AppConfig:
+        if self.loaded is None:
+            return AppConfig()
+        return self.loaded.config
+
+
+app = ManjiApp(
     name="manji",
     help="Compliance-first retrieval for authorized anime series.",
     no_args_is_help=True,
@@ -41,16 +85,24 @@ def _format_version() -> str:
 
 
 @app.callback()
+@guarded
 def _root(
+    ctx: typer.Context,
     config: Annotated[
         str | None,
         typer.Option("--config", help="Path to a manji configuration file."),
     ] = None,
 ) -> None:
-    """Run ``manji`` commands. Configuration loading arrives in Phase 2."""
+    """Run ``manji`` commands with an optional configuration file."""
+
+    loaded = load_config(explicit=config)
+    for warning in loaded.warnings:
+        error_console.print(f"[yellow]warning:[/yellow] {warning}")
+    ctx.obj = CliState(config_path=config, loaded=loaded)
 
 
 @app.command("version")
+@guarded
 def version_command() -> None:
     """Print version and build metadata."""
 
@@ -58,6 +110,7 @@ def version_command() -> None:
 
 
 @adapters_app.command("list")
+@guarded
 def adapters_list() -> None:
     """List registered site adapters."""
 
@@ -85,18 +138,10 @@ def adapters_list() -> None:
 
 def _exit_with_error(error: ManjiError) -> NoReturn:
     error_console.print(f"[red]error:[/red] {error}")
-    raise typer.Exit(code=error.exit_code)
+    raise SystemExit(error.exit_code)
 
 
 def main() -> None:
-    """Console-script entry point mapping domain errors to exit codes."""
+    """Console-script entry point."""
 
-    try:
-        app()
-    except ManjiError as error:
-        _exit_with_error(error)
-    except typer.Exit:
-        raise
-    except KeyboardInterrupt:
-        error_console.print("[yellow]interrupted[/yellow]")
-        sys.exit(130)
+    app()

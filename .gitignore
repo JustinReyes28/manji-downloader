@@ -42,6 +42,7 @@ out/
 coverage/
 htmlcov/
 .pytest_cache/
+.pytest-tmp/
 .mypy_cache/
 .ruff_cache/
 .tox/
