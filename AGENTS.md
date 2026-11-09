@@ -10,9 +10,10 @@ Pipeline: pasted URL → Adapter Registry → site adapter → `SeriesCatalog` �
 
 ## Current state
 
-- Phases 1–5 are implemented: package, contracts, registry, CLI, config/selection, compliance HTTP, mock adapters, downloader, link export, organizer, wizard, end-to-end tests, and packaging scaffolding. No production site adapter exists.
+- Phases 1–5 are implemented: package, contracts, registry, CLI, config/selection, compliance HTTP, mock adapters, downloader, link export, organizer, wizard, end-to-end tests, and packaging. npm `0.1.0` is published; `0.1.1` adds PyPI. No production site adapter exists.
 - **Runtime:** Python 3.12+ with `uv`. Package layout: `src/manji/`, console script `manji`. Python 3.14 and `uv` are installed locally.
 - `pyproject.toml` + `uv.lock` pin runtime and dev dependencies; `uv sync` sets everything up. `uv sync --group build` adds PyInstaller.
+- **Release process:** tag-driven only. Push a `v*` tag and `.github/workflows/release.yml` builds the five platform binaries and publishes. Never publish by hand, and never add a long-lived npm token: npm publishing uses trusted publishing (OIDC), which requires Node 24 / npm 11.5.1+ in the workflow. See [docs/PUBLISHING.md](docs/PUBLISHING.md).
 
 Verified commands:
 

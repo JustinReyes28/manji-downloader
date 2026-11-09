@@ -6,7 +6,7 @@ This document outlines the planned progression of **Manji Downloader** from its 
 
 The objective of the MVP is to establish the universal **Source Adapter Registry**, the interactive `manji` CLI wizard, and the core downloading/link-export pipeline.
 
-**Status:** Phases 1–5 of the implementation plan are complete. The package, contracts, configuration, selection engine, compliance HTTP layer, downloader, link exporter, organizer, CLI commands, wizard, and packaging scaffolding all exist and are covered by tests against synthetic mock adapters. The MVP is **not** shippable to end users yet: no production site adapter exists, which is the remaining blocker below.
+**Status:** Phases 1–5 of the implementation plan are complete. The package, contracts, configuration, selection engine, compliance HTTP layer, downloader, link exporter, organizer, CLI commands, wizard, and packaging scaffolding all exist and are covered by tests against synthetic mock adapters. Distribution is live: `0.1.0` shipped to npm and `0.1.1` adds PyPI. The MVP is still **not** useful to end users, because no production site adapter exists — that is the remaining blocker below.
 
 ### Completed
 
@@ -17,12 +17,12 @@ The objective of the MVP is to establish the universal **Source Adapter Registry
 - Compliant HTTP engine: per-domain `robots.txt`, rate limiting, `Retry-After` backoff, and challenge halting.
 - Streaming downloader with atomic writes, Range resume, and conflict policies.
 - Unit, integration, and CLI end-to-end tests using only loopback mock servers.
-- PyPI/npm packaging scaffolding, version-sync checks, and a release workflow.
+- PyPI/npm packaging, version-sync checks, and a tag-driven release workflow.
+- **Distribution go-live:** `manji-downloader` and its five platform packages are published on npm, installable with `npx manji-downloader` and `npm install -g manji-downloader`. Releases use npm trusted publishing (OIDC), so no long-lived npm token is stored.
 
 ### Remaining
 
-- **Initial Reference Site Adapter:** the first real adapter is blocked until an authorized source and its approved access method are documented. Until then only synthetic test adapters exist.
-- **Distribution go-live:** publishing to PyPI and npm has not been performed. See [docs/PUBLISHING.md](docs/PUBLISHING.md) for the blockers and the release checklist.
+- **Initial Reference Site Adapter:** the first real adapter is blocked until an authorized source and its approved access method are documented. Until then only synthetic test adapters exist, so `manji adapters list` reports no adapters.
 
 <!-- TODO: document approved access method for this source. -->
 

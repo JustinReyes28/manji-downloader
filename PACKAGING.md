@@ -1,8 +1,8 @@
 # Manji Downloader — Packaging & Distribution
 
-> **Publishing status:** the npm and PyPI packages are not published yet. See
-> [docs/PUBLISHING.md](docs/PUBLISHING.md) for verified name availability, the
-> remaining blockers, and the step-by-step release checklist.
+> **Publishing status:** live. `0.1.0` is on npm; `0.1.1` adds PyPI. Publishing
+> uses npm **trusted publishing (OIDC)** — no long-lived npm token is stored.
+> See [docs/PUBLISHING.md](docs/PUBLISHING.md) for the release checklist.
 
 ## Channels
 
@@ -105,10 +105,30 @@ The script copies the binary and writes a `package.json` with the matching
 6. Publish the root `manji-downloader` package.
 7. Smoke-test `npx -y manji-downloader@<version> --version` on at least one runner per OS family.
 
+### npm authentication: trusted publishing (OIDC)
+
+npm publishing uses **trusted publishing**, so no long-lived npm token is stored
+as a secret. Requirements:
+
+- **Node 24** in the workflow (npm ≥ 11.5.1). The workflow asserts this and fails
+  with a clear message otherwise.
+- `id-token: write` permission, already declared at workflow level.
+- A trusted publisher configured on **each** of the six npm packages
+  (owner `JustinReyes28`, repo `manji-downloader`, workflow `release.yml`).
+
+`setup-node` is deliberately called **without** `registry-url`. That input writes
+an `.npmrc` containing `_authToken=${NODE_AUTH_TOKEN}`; with no token defined npm
+can fail `ENEEDAUTH` before it ever attempts the OIDC exchange. The workflow also
+removes any stray `.npmrc` before publishing.
+
+A newly created trusted-publisher connection must complete its first successful
+publish within 2 days or it expires, so configure it immediately before tagging.
+
 ## Security
 
 - No install-time binary downloads.
 - Publish npm packages with provenance from GitHub Actions.
+- Publish npm packages with trusted publishing (OIDC); no long-lived npm token.
 - Publish Python artifacts with PyPI trusted publishing.
 - Publish SHA-256 checksums for GitHub Release archives.
 - Code signing (Windows Authenticode) and macOS notarization are planned before v1.0.

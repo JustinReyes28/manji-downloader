@@ -1,17 +1,16 @@
-# Publishing to npm
+# Publishing to npm and PyPI
 
-This document records the state of npm publishing for Manji Downloader: what is
-already in place, what is verified, what is blocked, and the exact steps to
-publish. It exists because `npx manji-downloader` and
-`npm install -g manji-downloader` are documented in the README but cannot work
-until the packages are on the public registry.
+This document records the publishing setup for Manji Downloader: what is live,
+how a release is cut, and what still needs manual cleanup. It exists because
+release mistakes here are expensive — npm versions are effectively permanent, and
+a half-published release breaks `npx` for some platforms.
 
-**Current status: PUBLISHED. `v0.1.0` was released on 2026-11-09 and all six
-packages are live on npm.**
+**Current status: PUBLISHED. `0.1.0` is live on npm; `0.1.1` adds PyPI.**
 
 ```bash
-npx manji-downloader@0.1.0 version     # -> manji 0.1.0
-npm install -g manji-downloader        # -> manji version -> manji 0.1.0
+npx manji-downloader@0.1.1 version     # -> manji 0.1.1
+npm install -g manji-downloader        # -> manji version -> manji 0.1.1
+uv tool install manji-downloader==0.1.1
 ```
 
 Release run: <https://github.com/JustinReyes28/manji-downloader/actions/runs/42598433091>
@@ -36,17 +35,18 @@ Release run: <https://github.com/JustinReyes28/manji-downloader/actions/runs/425
   verifying that the token could publish unattended. It is unrelated to the
   project and should be deleted from npmjs.com (Packages → delete), which needs
   an interactive 2FA confirmation.
-- **Migrate to trusted publishing** before January 2027 (see §4.2).
-- **PyPI is still not published** — the `publish-python` job was skipped because
-  `PYPI_ENABLED` is unset. Follow §4.3, then set the variable and re-tag a new
-  version (npm already holds `0.1.0`).
+- **The bootstrap token must be revoked.** It was pasted into a chat transcript in
+  plaintext and is therefore public. Revoke `manji-downloader-ci` at
+  <https://www.npmjs.com/settings/justinreyes28/tokens> and delete the
+  `NPM_TOKEN` secret once the first OIDC release is green. See §4.4 for the
+  fallback if OIDC has trouble.
 
 ---
 
 ## 1. Answer: can we publish?
 
-**Technically yes — the project is ready. It is blocked only on credentials that
-the maintainer must supply.**
+**Yes — and we have. All six packages are public.** This section is kept as the
+record of what was verified before the first release.
 
 Verified on 2026-11-09:
 
@@ -130,113 +130,80 @@ artifact is missing instead of publishing a partial release.
 
 ---
 
-## 4. Steps for the maintainer
+## 4. How releases are made
 
-### 4.1 Re-authenticate npm locally
+Publishing is **tag-driven** and uses **trusted publishing (OIDC)** for npm and
+PyPI. No long-lived registry token is stored.
 
-```bash
-npm login
-npm whoami          # must print your npm username
-```
+### 4.1 Prerequisites (one-time)
 
-If the old token in `~/.npmrc` is stale, `npm login` replaces it. Verify it has
-publish rights to the unscoped names listed above.
+**npm — a trusted publisher on each of the six packages.** Open each package on
+npmjs.com → **Settings → Trusted Publisher → GitHub Actions**:
 
-### 4.2 Create a granular token with 2FA bypass, then set the repository secret
+| Field | Value |
+| --- | --- |
+| Organization or user | `JustinReyes28` |
+| Repository | `manji-downloader` |
+| Workflow filename | `release.yml` |
+| Environment name | blank |
+| Allowed actions | allow **`npm publish`** |
 
-This is the one step that cannot be automated. Verified on 2026-11-09: the
-account has 2FA set to `auth-and-writes`, and the session token written by
-`npm login` **cannot publish unattended** — a probe publish failed with
-`EOTP` (one-time password required). A tag-triggered CI release using that token
-would fail at the first platform package.
+Notes that have bitten before:
 
-npm only offers **granular** access tokens in the web UI now; there is no
-classic "Automation" type. Use these exact settings:
+- Connections **cannot be edited** — delete and recreate on any typo.
+- A new connection must complete its first successful publish **within 2 days**
+  or it expires. Configure immediately before tagging.
+- OIDC needs **npm ≥ 11.5.1 / Node ≥ 22.14**. The workflow uses Node 24 and
+  asserts the npm version.
 
-1. Open <https://www.npmjs.com/settings/justinreyes28/tokens> →
-   **Generate New Token** → **Granular Access Token**.
-2. Fill in:
+**PyPI — a trusted publisher.** PyPI → Publishing → add a pending publisher with
+owner `JustinReyes28`, repository `manji-downloader`, workflow `release.yml`,
+environment `pypi`. The matching GitHub environment exists, and the workflow's
+`publish-python` job is enabled by the repository variable `PYPI_ENABLED=true`.
 
-   | Field | Value |
-   | --- | --- |
-   | Token name | `manji-downloader-ci` |
-   | Bypass two-factor authentication (2FA) | **Checked** — required for unattended CI |
-   | Allowed IP ranges | blank (GitHub-hosted runner IPs are dynamic) |
-   | Packages and scopes → Permissions | **Read and write (publish and stage)** |
-   | Select Packages | **All Packages** |
-   | Organizations | No access |
-   | Expiration | 30 days |
-
-   **All Packages is mandatory.** The six `manji-downloader*` packages do not
-   exist yet, so "Only select packages and scopes" cannot list them and the
-   first publish would be rejected.
-
-3. Generate, copy the token once, then:
-
-   ```bash
-   gh secret set NPM_TOKEN
-   ```
-
-   Paste at the prompt. Never commit it and never put it in a `.npmrc` inside
-   the repository.
-
-4. Confirm the flow works before tagging. A publish that needs an OTP fails with
-   `EOTP`; the workflow will show that error on the first platform package.
-
-`npm token create` is not a workaround: it prompts for a password and an OTP
-interactively and cannot mint granular tokens at all.
-
-#### This token is temporary
-
-npm is retiring 2FA-bypass publishing around **January 2027**; such tokens will
-only be able to read private packages and stage a publish for human approval.
-Plan to migrate to trusted publishing:
-
-1. After the first successful release, open each of the six packages on
-   npmjs.com → **Settings → Trusted Publisher → GitHub Actions**.
-2. Set owner `JustinReyes28`, repository `manji-downloader`, workflow
-   filename `release.yml`, and allow direct publishing with `npm publish`.
-3. Remove `NODE_AUTH_TOKEN` from `.github/workflows/release.yml`. The workflow
-   already declares `id-token: write`, which is all OIDC needs.
-4. Revoke the granular token and delete the `NPM_TOKEN` secret.
-
-A 2FA-bypass token cannot configure trusted publishers itself — that needs an
-interactive 2FA challenge in the browser.
-
-### 4.3 Configure PyPI trusted publishing
-
-1. Create a `pypi` environment in the repository (Settings → Environments).
-2. On PyPI, add a trusted publisher for the project with:
-   - Owner: `JustinReyes28`
-   - Repository: `manji-downloader`
-   - Workflow: `release.yml`
-   - Environment: `pypi`
-
-No long-lived PyPI token is needed with trusted publishing.
-
-### 4.4 Tag and push
+### 4.2 Cut the release
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
-```
-
-This triggers the release workflow. Watch it:
-
-```bash
+git tag v0.1.1
+git push origin v0.1.1
 gh run watch
 ```
 
-### 4.5 Verify the published packages
+Bump the version in `pyproject.toml` **and** in `package.json` (both `version`
+and every `optionalDependencies` pin) before tagging.
+`scripts/check_versions.py` fails the release on drift, and the workflow also
+verifies the launcher pins match the build version.
+
+### 4.3 Verify
 
 ```bash
 npm view manji-downloader version
-npx -y manji-downloader@0.1.0 --version
-npm install -g manji-downloader && manji version
+npx -y manji-downloader@0.1.1 version
+npm install -g manji-downloader@0.1.1 && manji version
+uv tool install manji-downloader==0.1.1 && manji version
 ```
 
-Smoke-test on at least one machine per OS family, as required by
-`PACKAGING.md`.
+### 4.4 Fallback: token-based publishing
+
+Only if OIDC is unavailable. A granular token with 2FA bypass can still publish,
+but npm is retiring that capability around **January 2027**, and such tokens
+cannot unpublish or manage trusted publishers. If you must use one:
+
+1. Generate a granular token: **Bypass two-factor authentication** checked,
+   **Read and write (publish and stage)**, **All Packages**, 30-day expiry.
+2. `gh secret set NPM_TOKEN`.
+3. Re-add to `.github/workflows/release.yml` under `publish-npm`:
+
+   ```yaml
+   env:
+     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+   ```
+
+   and restore `registry-url: "https://registry.npmjs.org"` on `setup-node`.
+4. Remove both again once OIDC works.
+
+`npm token create` is not a workaround: it prompts for a password and an OTP
+interactively and cannot mint granular tokens at all.
 
 ---
 
@@ -293,20 +260,21 @@ same package contents and the same launcher logic.
 
 ---
 
-## 7. After publishing
+## 7. Documentation checklist (done)
 
-Update these so the documentation matches reality:
+These are complete; keep them true when releasing again:
 
-- `README.md` — remove any "not published yet" wording once the release exists.
-- `ROADMAP.md` — mark distribution as live under the MVP milestone.
-- `docs/phases/README.md` — close the publishing blocker.
-- `AGENTS.md` — note that releases happen via tag, not manually.
+- `README.md` — install commands show the published versions.
+- `ROADMAP.md` — distribution is marked live under the MVP milestone.
+- `docs/phases/README.md` — the publishing blocker is closed.
+- `AGENTS.md` — records that releases are tag-driven, never manual.
 
 ## 8. Things to keep in mind
 
 - **Version sync is enforced.** `scripts/check_versions.py` fails if
-  `pyproject.toml`, `package.json`, and every platform package disagree. Bump all
-  of them together.
+  `pyproject.toml`, `package.json`, the `optionalDependencies` pins, or any
+  platform package disagree. Bump all of them together; the release workflow
+  re-checks the pins before publishing.
 - **Never add a `postinstall` script.** It would break the no-install-time-network
   guarantee behind `npx` and behind proxies.
 - **Unpublishing is limited.** npm allows unpublishing within 72 hours; after
@@ -316,3 +284,5 @@ Update these so the documentation matches reality:
   or install globally.
 - **Binaries are not committed.** `npm/platforms/*/` is gitignored; they are
   build artifacts produced by the workflow.
+- **No npm secret should exist.** If `gh secret list` shows `NPM_TOKEN`, OIDC is
+  not fully in use yet — finish the migration in §4.4.

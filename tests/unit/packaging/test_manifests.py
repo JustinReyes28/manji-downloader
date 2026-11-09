@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 from scripts.build_platform_package import PLATFORMS, build_platform
-from scripts.check_versions import check, python_version
+from scripts.check_versions import check, check_optional_dependencies, python_version
 
 pytestmark = pytest.mark.unit
 
@@ -33,6 +33,58 @@ def test_optional_dependencies_cover_every_platform() -> None:
 
 def test_versions_are_in_sync() -> None:
     assert check() == []
+
+
+def _write_package(path: Path, optional: object, version: str = "0.1.1") -> Path:
+    target = path / "package.json"
+    target.write_text(
+        json.dumps(
+            {"name": "manji-downloader", "version": version, "optionalDependencies": optional}
+        ),
+        encoding="utf-8",
+    )
+    return target
+
+
+def test_optional_dependencies_pins_are_checked(tmp_path: Path) -> None:
+    pinned = {f"manji-downloader-{name}": "0.1.1" for name in PLATFORMS}
+    manifest = _write_package(tmp_path, pinned)
+    assert check_optional_dependencies(manifest, "0.1.1") == []
+
+
+def test_stale_optional_dependency_pin_is_reported(tmp_path: Path) -> None:
+    pinned = {f"manji-downloader-{name}": "0.1.1" for name in PLATFORMS}
+    pinned["manji-downloader-linux-x64"] = "0.1.0"
+    manifest = _write_package(tmp_path, pinned)
+    problems = check_optional_dependencies(manifest, "0.1.1")
+    assert len(problems) == 1
+    assert "manji-downloader-linux-x64" in problems[0]
+    assert "0.1.0" in problems[0]
+
+
+def test_missing_platform_in_optional_dependencies_is_reported(tmp_path: Path) -> None:
+    pinned = {f"manji-downloader-{name}": "0.1.1" for name in PLATFORMS}
+    del pinned["manji-downloader-darwin-arm64"]
+    manifest = _write_package(tmp_path, pinned)
+    problems = check_optional_dependencies(manifest, "0.1.1")
+    assert any("missing" in problem and "darwin-arm64" in problem for problem in problems)
+
+
+def test_unknown_platform_in_optional_dependencies_is_reported(tmp_path: Path) -> None:
+    pinned = {f"manji-downloader-{name}": "0.1.1" for name in PLATFORMS}
+    pinned["manji-downloader-plan9-x64"] = "0.1.1"
+    manifest = _write_package(tmp_path, pinned)
+    problems = check_optional_dependencies(manifest, "0.1.1")
+    assert any("unknown" in problem and "plan9" in problem for problem in problems)
+
+
+def test_missing_optional_dependencies_mapping_is_reported(tmp_path: Path) -> None:
+    target = tmp_path / "package.json"
+    target.write_text(
+        json.dumps({"name": "manji-downloader", "version": "0.1.1"}), encoding="utf-8"
+    )
+    problems = check_optional_dependencies(target, "0.1.1")
+    assert problems and "no optionalDependencies" in problems[0]
 
 
 def test_platform_matrix_matches_documented_targets() -> None:

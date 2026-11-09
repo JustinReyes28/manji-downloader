@@ -37,6 +37,7 @@ def check() -> list[str]:
         actual = package_version(root_package)
         if actual != expected:
             problems.append(f"package.json is {actual}, expected {expected}")
+        problems.extend(check_optional_dependencies(root_package, expected))
 
     platforms_root = ROOT / "npm" / "platforms"
     if platforms_root.is_dir():
@@ -47,6 +48,35 @@ def check() -> list[str]:
             actual = package_version(manifest)
             if actual != expected:
                 problems.append(f"{manifest.relative_to(ROOT)} is {actual}, expected {expected}")
+    return problems
+
+
+def check_optional_dependencies(path: Path, expected: str) -> list[str]:
+    """Verify every platform package is pinned to the release version.
+
+    Without this, a version bump can publish a launcher that still installs the
+    previous release's binaries.
+    """
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    optional = payload.get("optionalDependencies")
+    if not isinstance(optional, dict):
+        return [f"{path.name} has no optionalDependencies mapping"]
+
+    problems: list[str] = []
+    expected_keys = {f"manji-downloader-{name}" for name in PLATFORMS}
+    actual_keys = set(optional)
+    if actual_keys != expected_keys:
+        missing = sorted(expected_keys - actual_keys)
+        extra = sorted(actual_keys - expected_keys)
+        if missing:
+            problems.append(f"{path.name} optionalDependencies is missing: {', '.join(missing)}")
+        if extra:
+            problems.append(f"{path.name} optionalDependencies has unknown: {', '.join(extra)}")
+
+    for name, pinned in sorted(optional.items()):
+        if pinned != expected:
+            problems.append(f"{path.name} pins {name} at {pinned}, expected {expected}")
     return problems
 
 
