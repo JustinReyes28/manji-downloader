@@ -1,0 +1,22 @@
+storage: /verdaccio/storage
+
+# The platform package ships a ~22 MB PyInstaller binary, well above
+# Verdaccio's default 10 MB request limit.
+max_body_size: 200mb
+
+auth:
+  htpasswd:
+    file: /verdaccio/storage/htpasswd
+
+# This registry exists only inside the throwaway smoke-test network, so it
+# allows anonymous publish to keep the test free of credentials.
+packages:
+  "**":
+    access: $all
+    publish: $all
+    unpublish: $all
+
+log:
+  type: stdout
+  format: pretty
+  level: warn

@@ -1,0 +1,27 @@
+services:
+  registry:
+    image: verdaccio/verdaccio:5
+    environment:
+      VERDACCIO_PUBLIC_URL: http://registry:4873
+    volumes:
+      - ./verdaccio.yaml:/verdaccio/conf/config.yaml:ro
+      - registry-data:/verdaccio/storage
+    # Internal-only: nothing is exposed to the host.
+    expose:
+      - "4873"
+
+  lab:
+    build:
+      context: ../..
+      dockerfile: docker/npm-smoke/Dockerfile
+    depends_on:
+      - registry
+    environment:
+      REGISTRY: http://registry:4873
+      PX_WORK: /src
+    # Keep the container available for inspection if the script fails.
+    stdin_open: false
+    tty: false
+
+volumes:
+  registry-data:
