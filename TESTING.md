@@ -49,7 +49,7 @@ Unit tests verify discrete modules in isolation using unit test frameworks and l
 
 ## 2.5 Per-Domain Rate Limiter Tests
 
-- Verification of independent token buckets per target site domain during multi-episode link extraction.
+- Verification of independent limiter state per target site domain during multi-episode link extraction.
 - Precise enforcement of minimum delay intervals between consecutive episode lookups.
 - Correct calculation of backoff durations upon receiving simulated `Retry-After` headers.
 
@@ -59,9 +59,21 @@ Unit tests verify discrete modules in isolation using unit test frameworks and l
 - Verification of companion rename manifest (`links-manifest.json`) mapping URLs to `{series_title}/{category}/{series_title} - Episode {episode_number} [{quality}].{ext}`.
 - Sanitization of illegal filesystem characters in anime series and episode titles across Windows, macOS, and Linux.
 
+## 2.7 npm Launcher & Packaging Tests
+
+- Launcher resolves `MANJI_BINARY`, forwards arguments, and propagates the child exit code.
+- Unsupported platforms and missing platform packages produce a clear error with a PyPI fallback suggestion.
+- `npm pack --dry-run` includes only `bin/manji.js`, `README.md`, `LICENSE`, and `package.json`.
+- Platform package metadata contains the correct `os`, `cpu`, `files`, and version.
+- Version sync check: `pyproject.toml`, root `package.json`, and all platform packages match.
+- Tarball smoke test: install the packed package in a temporary directory and run `npx --yes ./manji-downloader-<version>.tgz --version`.
+- Built PyInstaller binaries report the same version as the Python package.
+
 # 3. Integration Testing with Mock Servers
 
 Integration tests evaluate end-to-end component interaction against locally hosted mock HTTP servers simulating multiple supported anime catalog architectures.
+
+The Python implementation uses `pytest-httpserver` (or a stdlib `ThreadingHTTPServer`) for local servers and `httpx` as the shared client. A loopback-only transport rejects any non-local host.
 
 ## Mock Server Requirements
 
@@ -79,21 +91,26 @@ Integration tests evaluate end-to-end component interaction against locally host
 2. **Direct Download Flow (**`MockSiteB`**):** Select Episode `1-1` from `MockSiteB` -> stream mock binary payload -> verify atomic file write and sidecar metadata creation.
 3. **Challenge & Halting Flow:** Mock server returns simulated Cloudflare/challenge page -> client immediately halts episode link extraction without retrying -> verifies manual browser handoff message is displayed.
 
-# 4. Test Execution Placeholders
+# 4. Test Execution
 
 ```bash
-# Run complete Manji Downloader test suite (unit and integration)
-[test-runner] test
+# Run the complete test suite (unit and integration)
+uv run pytest
 
 # Run unit tests only (URL router, range parser, variant sorter, link exporter)
-[test-runner] test --scope=unit
+uv run pytest -m unit
 
-# Run unit tests for a specific site adapter's offline fixtures
-[test-runner] test --adapter=[site_id]
+# Run tests for a specific adapter's offline fixtures
+uv run pytest tests/adapters -k mock_json
 
 # Run mock multi-site server integration tests
-[test-runner] test --scope=integration
+uv run pytest -m integration
 
-# Run compliance and linting checks
-[linter] run .
+# Run linting and type checks
+uv run ruff check .
+uv run mypy src
+
+# Run npm launcher tests and inspect the published file set
+npm test
+npm pack --dry-run
 ```

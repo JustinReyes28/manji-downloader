@@ -1,0 +1,68 @@
+# Manji Downloader example configuration (YAML).
+# Copy to manji-config.yaml (working directory) or the per-user config directory.
+# Documentation examples only: site slots are synthetic placeholders.
+
+version: "1.0"
+
+network:
+  user_agent: "ManjiDownloader/1.0 (+https://example.com/manji-downloader; contact@example.com)"
+  timeout_seconds: 30
+  max_retries: 3
+  respect_robots_txt: true
+
+site_adapters:
+  site_adapter_01:
+    enabled: true
+    base_domain: "site01.example.org"
+    auth_mode: "api_key"
+    api_key_env: "${ENV_SITE01_API_KEY}"
+    min_request_delay_seconds: 1.5
+
+  site_adapter_02:
+    enabled: true
+    base_domain: "site02.example.org"
+    auth_mode: "cookie_session"
+    cookie_file: "~/.config/manji/cookies/site02_cookies.txt"
+    min_request_delay_seconds: 2.0
+
+media_selection:
+  interactive_prompts: true
+  default_ranges:
+    episodes: "1-12"
+    ovas: "0"
+    movies: "0"
+    specials: "0"
+  preferred_qualities:
+    - "1080p"
+    - "720p"
+    - "480p"
+  preferred_formats:
+    - "mkv"
+    - "mp4"
+  sort_criterion: "biggest_size"
+
+rate_limits:
+  max_concurrent_requests_per_site: 2
+  default_request_delay_seconds: 1.5
+
+cache:
+  directory: "~/.cache/manji"
+  max_size_mb: 500
+  retention_hours: 72
+  enabled: true
+
+storage:
+  output_mode: "direct_download"
+  base_output_directory: "./Anime_Downloads"
+  filename_template: "{series_title}/{category}/{series_title} - Episode {episode_number} [{quality}].{ext}"
+  batch_export:
+    links_file_path: "./links.txt"
+    generate_rename_manifest: true
+    manifest_file_path: "./links-manifest.json"
+  conflict_resolution: "rename"
+  save_metadata_sidecar: true
+
+logging:
+  level: "INFO"
+  file_path: "~/.local/state/manji/manji.log"
+  sanitize_secrets: true

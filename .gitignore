@@ -35,14 +35,31 @@ manji.log
 .cache/
 .manji/
 
-# Build and test output (runtime and toolchain still to be chosen)
+# Python build, test, and cache output
 dist/
 build/
 out/
 coverage/
-node_modules/
+htmlcov/
+.pytest_cache/
+.pytest-tmp/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+*.egg-info/
 __pycache__/
 *.py[cod]
 .venv/
 venv/
-target/
+.coverage
+.coverage.*
+.uv/
+
+# npm packaging and generated platform packages
+node_modules/
+npm-debug.log*
+.npm/
+*.tgz
+npm/platforms/*/
+

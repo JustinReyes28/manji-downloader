@@ -1,0 +1,49 @@
+{
+  "name": "manji-downloader",
+  "version": "0.1.0",
+  "description": "Compliance-first CLI for retrieving anime series and episodic media from authorized sources.",
+  "license": "MIT",
+  "author": "Manji Downloader contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JustinReyes28/manji-downloader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JustinReyes28/manji-downloader/issues"
+  },
+  "homepage": "https://github.com/JustinReyes28/manji-downloader#readme",
+  "keywords": [
+    "anime",
+    "cli",
+    "downloader",
+    "compliance",
+    "robots-txt"
+  ],
+  "bin": {
+    "manji": "bin/manji.js",
+    "manji-downloader": "bin/manji.js"
+  },
+  "files": [
+    "bin/manji.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "optionalDependencies": {
+    "manji-downloader-darwin-arm64": "0.1.0",
+    "manji-downloader-darwin-x64": "0.1.0",
+    "manji-downloader-linux-arm64": "0.1.0",
+    "manji-downloader-linux-x64": "0.1.0",
+    "manji-downloader-win32-x64": "0.1.0"
+  },
+  "scripts": {
+    "test": "node --test test/npm/wrapper.test.js",
+    "pack:check": "npm pack --dry-run",
+    "version:check": "uv run python scripts/check_versions.py"
+  }
+}

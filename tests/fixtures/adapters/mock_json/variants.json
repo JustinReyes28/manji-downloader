@@ -1,0 +1,32 @@
+{
+  "item_id": "ep-01",
+  "variants": [
+    {
+      "id": "ep-01-1080p-mkv",
+      "quality": "1080p",
+      "container": "mkv",
+      "size_bytes": 1468006400,
+      "uploaded_at": "2024-03-01T12:00:00Z",
+      "download_count": 512,
+      "url": "https://mock-json.test/media/example/ep-01-1080p.mkv"
+    },
+    {
+      "id": "ep-01-720p-mp4",
+      "quality": "720p",
+      "container": "mp4",
+      "size_bytes": 734003200,
+      "uploaded_at": "2024-03-02T12:00:00Z",
+      "download_count": 1800,
+      "url": "https://mock-json.test/media/example/ep-01-720p.mp4"
+    },
+    {
+      "id": "ep-01-480p-mp4",
+      "quality": "480p",
+      "container": "mp4",
+      "size_bytes": 367001600,
+      "uploaded_at": "2024-03-03T12:00:00Z",
+      "download_count": 2600,
+      "url": "https://mock-json.test/media/example/ep-01-480p.mp4"
+    }
+  ]
+}

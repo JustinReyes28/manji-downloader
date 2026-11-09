@@ -25,7 +25,14 @@
 
 - [ ] Tests added or updated for the change.
 - [ ] Zero live network calls in tests; local mock servers and offline fixtures only.
-- [ ] Typecheck, lint, and test commands pass (toolchain commands: TBD).
+- [ ] `uv run ruff check .`, `uv run mypy src`, and `uv run pytest` pass.
+
+## Packaging
+
+- [ ] `npm test` passes.
+- [ ] `npm pack --dry-run` contains only the launcher, README, license, and package metadata.
+- [ ] Python and npm versions match when packaging files change.
+- [ ] No PyInstaller binaries or generated `npm/platforms/` packages are committed.
 
 ## Documentation
 
